@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify, request,Response
 import pymysql
 from pymysql.cursors import DictCursor
 from flask_cors import CORS
@@ -7,8 +7,6 @@ import json
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})  # Allowing all origins for the /api/* routes
 
-app.config['SECRET_KEY'] = 'k224150'
-app.config['TEMPLATES_AUTO_RELOAD'] = True
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -38,6 +36,30 @@ def hello():
     """Root endpoint that returns a simple hello message."""
     return jsonify({'message': 'Hello, welcome to the Society Management Portal!'})
 
+@app.route('/api/events/<int:event_id>', methods=['GET'])
+def get_event(event_id):
+    """Fetch a single event by event_id"""
+    connection = get_connection()
+    if not connection:
+        return jsonify({'error': 'Failed to connect to the database'}), 500
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT event_id, event_title, about_event, event_date,booking_price
+                FROM society_events WHERE event_id = %s
+            """, (event_id,))
+            event = cursor.fetchone()
+            if not event:
+                return jsonify({'error': 'Event not found'}), 404
+            return jsonify(event)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if connection:
+            connection.close()
+
+
 @app.route('/api/events', methods=['GET'])
 def get_events():
     """API endpoint for fetching all events."""
@@ -57,6 +79,44 @@ def get_events():
     finally:
         if connection:
             connection.close()
+@app.route('/events/1/http://127.0.0.1:5001/api/bookings', methods=['POST'])
+def submit_booking():
+    connection = get_connection()
+    if not connection:
+        return jsonify({'error': 'Failed to connect to the database'}), 500
+
+    try:
+        # Parse form data from the request
+        name = request.form.get('name')
+        batch = request.form.get('batch')
+        email = request.form.get('email')
+        phone = request.form.get('number')
+        event_id = request.form.get('event_id')  # Ensure your frontend form includes event_id as a hidden input
+        
+        # Print the values for debugging
+        print(f"Received form data: name={name}, batch={batch}, email={email}, phone={phone}, event_id={event_id}")
+        
+        if not all([name, batch, email, phone, event_id]):
+            return jsonify({'error': 'All fields are required.'}), 400
+
+        # Insert booking data into the database
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO bookings (event_id, s_name, batch, email, phone)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (event_id, name, batch, email, phone))
+            connection.commit()
+
+        return jsonify({'message': 'Booking submitted successfully!'}), 201
+
+    except Exception as e:
+        print(f"Error submitting booking: {e}")
+        return jsonify({'error': 'Failed to submit booking.'}), 500
+
+    finally:
+        if connection:
+            connection.close()
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
+    
