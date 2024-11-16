@@ -2,11 +2,10 @@ import React from 'react'
 import Events from '@/components/Events'
 import { useLoaderData } from 'react-router-dom';
 
-export function loader(){
-    //fetch request made from database to fetch live event details and store it in an array of objects
-
-    //change this null to array name
-    return null;
+export async function loader(){
+    const response = await fetch('/api/events');
+    const data = await response.json();
+    return data;
 }
 
 
