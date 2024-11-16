@@ -56,7 +56,7 @@ const Booking = () => {
             </div>
             <div className='lg:w-[50%] max-w-md lg:mx-auto px-7 lg:px-0'>
 
-                <button className='w-full bg-red-700 text-gray-300 border-none rounded py-2  flex items-center justify-center  cursor-pointer hover:brightness-90 lg:text-2xl text-base lg:tracking-widest lg:mx-auto ' type="submit" >
+                <button className='w-full bg-red-600 bg-opacity-80 text-gray-300 border-none rounded py-2  flex items-center justify-center  cursor-pointer hover:brightness-90 lg:text-2xl text-base lg:tracking-widest lg:mx-auto ' type="submit" >
                     Confirm Payment
                 </button>
 

@@ -2,29 +2,30 @@ import React from 'react'
 import Events from '@/components/Events'
 import { useLoaderData } from 'react-router-dom';
 
-export async function loader(){
-    const response = await fetch('/api/events');
-    const data = await response.json();
-    return data;
+export async function loader()
+{
+
+    try {
+        const response = await fetch('http://127.0.0.1:5001/api/events'); 
+        if (!response.ok) {
+          throw new Error('Failed to fetch events');
+        }
+        const data = await response.json();
+        return data;
+      }
+      catch(error){
+        console.log(error.message);
+        return null;
+      }
 }
 
 
 
 const EventPage = () => {
 
-    //delete this once data has been fetched
-    const randomEvents=[{event_id:1,event_title:"Annual Tour",about_event:"Pack your bags and let’s make memories! ✨Annual Tour '25 is almost here with amazing spots and fun activities lined up. Don’t miss out on this epic journey!"
- ,event_date:"2024-12-31"},{
-    event_id:2,
-    event_title:"Annual Dinner",
-    about_event:"The much-anticipated DECS Annual Dinner 2025 is on the horizon! An evening filled with gourmet delights, dazzling performances, and unforgettable memories as we gather together to celebrate another incredible year of the AD'25."
-,
-event_date:"2024-12-30"}]
-
     const array=useLoaderData();
 
-    //once data has been fetched change "randomEvents" to "array"
-    const events=randomEvents.map((item)=>{
+    const events=array.map((item)=>{
         return(
         <Events key={item.id} id={item.event_id} name={item.event_title}
         description={item.about_event} eventOn={item.event_date}/>

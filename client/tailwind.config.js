@@ -69,6 +69,18 @@ export default {
 			'outfit': ['Outfit', 'sans-serif'],
 			
 		  },
+		  keyframes: {
+			bottomToTop: {
+			  '0%': { opacity: 0, transform: 'translateY(100%)' }, // Start from the bottom of the screen
+			  '100%': { opacity: 1, transform: 'translateY(0)' },   // End at normal position
+			},
+		  },
+		  animation: {
+			create: 'bottomToTop 2s ease-out forwards',
+			expand: 'bottomToTop 2s ease-out forwards 1s', // Delay the expand animation by 3 seconds
+			explore: 'bottomToTop 2s ease-out forwards 2s', // Delay the explore animation by 6 seconds
+		  },
+		  
   	}
   },
   plugins: [require("tailwindcss-animate")],

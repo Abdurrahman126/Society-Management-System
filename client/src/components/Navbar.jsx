@@ -20,7 +20,7 @@ const Navbar = () => {
   const navigate=useNavigate();
   return (
    <> 
-    <nav className="fixed top-2 lg:top-0 left-1/2 transform -translate-x-1/2 w-[95%] lg:w-full h-10 lg:h-20 text-white bg-black bg-opacity-75 p-2  rounded-xl lg:rounded-none  flex items-center justify-between ">
+    <nav className="fixed top-2 lg:top-0 left-1/2 transform -translate-x-1/2 w-[95%] lg:w-full h-10 lg:h-20 text-white bg-black bg-opacity-75 z-10 p-2  rounded-xl lg:rounded-none  flex items-center justify-between shadow-2xl">
     <img src={decs} className='max-w-[20%] lg:max-w-[9%] p-2 lg:mr-10 cursor-pointer' onClick={()=>{
       navigate('/');
       }}/>
@@ -31,8 +31,10 @@ const Navbar = () => {
       <NavigationMenu>
   <NavigationMenuList>
     <NavigationMenuItem>
-      <NavigationMenuTrigger className="bg-inherit">Our Team</NavigationMenuTrigger>
-      <NavigationMenuContent className="flex flex-col gap-2 w-full px-4 bg-transparent">
+      <NavigationMenuTrigger className="!bg-transparent !text-white">Our Team</NavigationMenuTrigger>
+      <NavigationMenuContent className="flex flex-col gap-2 w-full pl-4 pr-12 bg-transparent rounded-md text-sm py-5 text-nowrap" >
+      <NavigationMenuLink>Faculty Heads</NavigationMenuLink>
+
         <NavigationMenuLink>Excom</NavigationMenuLink>
 
         <NavigationMenuLink>Extended Excom</NavigationMenuLink>
@@ -45,7 +47,7 @@ const Navbar = () => {
       </div>
       <TfiLineDouble className='text-2xl text-white lg:hidden lg:absolute'/>
 
-   {location.pathname!="/login" && <Link to="/login">  <button className="text-white bg-red-800 rounded-xl p-1 text-xs lg:text-xl lg:p-2 lg:px-4 lg:rounded-3xl">Join Us</button></Link>
+   {location.pathname!="/login" && <Link to="/login">  <button className="text-white bg-red-700 rounded-xl p-1 text-xs lg:text-base lg:p-2 lg:px-6 lg:rounded-3xl">Join Us</button></Link>
 }</nav>
     <Outlet/>
     </>
