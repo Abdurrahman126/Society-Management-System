@@ -79,7 +79,7 @@ def get_events():
     finally:
         if connection:
             connection.close()
-@app.route('/events/1/http://127.0.0.1:5001/api/bookings', methods=['POST'])
+@app.route('/api/bookings', methods=['POST'])
 def submit_booking():
     connection = get_connection()
     if not connection:
