@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request,Response
 import pymysql
+from werkzeug.security import check_password_hash
 from pymysql.cursors import DictCursor
 from flask_cors import CORS
 import json
@@ -116,6 +117,40 @@ def submit_booking():
     finally:
         if connection:
             connection.close()
+
+@app.route('/api/login', methods=['POST'])
+def login_user():
+    connection = get_connection()
+    
+    try:
+        # Retrieve data from form data
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if not all([email, password]):
+            return jsonify({'error': 'All fields are required.'}), 400
+
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT pwd FROM users WHERE email = %s", (email,))
+            user = cursor.fetchone()
+
+            if user is None:
+                return jsonify({'error': 'User not found.'}), 404
+
+            stored_password = user['pwd']
+            if stored_password != password:
+                return jsonify({'error': 'Invalid credentials.'}), 401
+
+            return jsonify({'message': 'Login successful'}), 200
+
+    except Exception as e:
+        print(f"Error logging user in: {type(e).__name__}, {e}")
+        return jsonify({'error': 'Failed to login'}), 500
+
+    finally:
+        if connection:
+            connection.close()
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
