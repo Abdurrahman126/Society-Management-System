@@ -60,7 +60,7 @@ CREATE TABLE feedback (
 );
 
 
-CREATE TABLE inductionS (
+CREATE TABLE inductions (
     induction_id INT AUTO_INCREMENT PRIMARY KEY,
     applying_for VARCHAR(20) NOT NULL,
     applicant_name VARCHAR(500),

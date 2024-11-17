@@ -1,5 +1,6 @@
-import React from 'react';
-import { Form, useLoaderData } from 'react-router-dom';
+
+import React,{useEffect, useState} from 'react';
+import { Form, useActionData, useLoaderData,redirect} from 'react-router-dom';
 export async function loader({ params }) {
     const eventId = params.id;
     try {
@@ -8,7 +9,7 @@ export async function loader({ params }) {
             throw new Error('Failed to fetch event data');
         }
         const data = await response.json();
-        return data; // Return event data if successful
+        return data; 
     } catch (error) {
         console.log(error.message);
         return { error: 'Failed to load event data' }; // Return an error object
@@ -17,16 +18,45 @@ export async function loader({ params }) {
 
 
 
-export async function action({ request }) {
+export const action = async ({ request }) => {
+    const formData = new URLSearchParams(await request.formData());
     
-    return null;
-}
+    // Send data to your backend API
+    const response = await fetch('http://127.0.0.1:5001/api/bookings', {
+      method: 'POST',
+      body: formData,
+    });
+  
+    const data = await response.json();
+  
+    if (response.ok) {
+        throw redirect('/members')
+      return  {message:data.message}
+    } else {
+      return { error: data.error }
+    }
+  };
+  
 
 const Booking = () => {
     const data = useLoaderData();
-        console.log(data);
+    const actionData=useActionData();
+    const [message,setMessage]=useState("");
+    useEffect(()=>{
+        if (actionData) {
+            if (actionData.message) {
+              setMessage(actionData.message); // Success message
+            }
+            if (actionData.error) {
+              setMessage(actionData.error); // Error message
+            }
+          }
+    },[actionData])
+
     return (
-        <Form method="post" action="http://127.0.0.1:5001/api/bookings" className="flex flex-col">
+
+        <div className='h-dvh w-full flex flex-col justify-center items-center'>
+        <Form method="post"  className="bg-white lg:w-[35%] w-[80%] h-[60%] rounded-2xl flex flex-col items-center justify-evenly animate-open">
     <input type="hidden" name="event_id" value={data.event_id} />
     <label htmlFor="name" className="text-black">Name:</label>
     <input name="name" type="text" required className="bg-gray-300 rounded-lg" />
@@ -36,10 +66,11 @@ const Booking = () => {
     <input name="email" type="email" required className="bg-gray-300 rounded-lg" />
     <label htmlFor="number" className="text-black">Phone:</label>
     <input name="number" type="text" required className="bg-gray-300 rounded-lg" />
-    <button type="submit" className="w-full bg-red-600 bg-opacity-80 text-gray-300 border-none rounded py-2 flex items-center justify-center cursor-pointer hover:brightness-90">
-        Confirm Booking
-    </button>
+    <button className='bg-red-600 text-white lg:p-4 p-3 rounded-lg lg:w-[70%] w-[90%]' type='submit'>Book</button>
+       
 </Form>
+        {message && <div className='text-white'>{message}</div>}
+</div>
 
     );
 }
