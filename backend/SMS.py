@@ -6,7 +6,7 @@ from flask_cors import CORS
 import json
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})  # Allowing all origins for the /api/* routes
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -26,9 +26,9 @@ def get_connection():
         app.logger.error("Error connecting to the database: %s", str(err))
         return None
 
-@app.errorhandler(Exception)  # This will catch all exceptions
+@app.errorhandler(Exception)  
 def handle_exception(e):
-    # Return JSON instead of HTML for any other exceptions
+   
     response = json.dumps({'error': str(e)})
     return Response(response, mimetype='application/json', status=500)
 
@@ -87,20 +87,18 @@ def submit_booking():
         return jsonify({'error': 'Failed to connect to the database'}), 500
 
     try:
-        # Parse form data from the request
+   
         name = request.form.get('name')
         batch = request.form.get('batch')
         email = request.form.get('email')
         phone = request.form.get('number')
-        event_id = request.form.get('event_id')  # Ensure your frontend form includes event_id as a hidden input
-        
-        # Print the values for debugging
+        event_id = request.form.get('event_id')  
+  
         print(f"Received form data: name={name}, batch={batch}, email={email}, phone={phone}, event_id={event_id}")
         
         if not all([name, batch, email, phone, event_id]):
             return jsonify({'error': 'All fields are required.'}), 400
 
-        # Insert booking data into the database
         with connection.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO bookings (event_id, s_name, batch, email, phone)
@@ -123,7 +121,7 @@ def login_user():
     connection = get_connection()
     
     try:
-        # Retrieve data from form data
+      
         email = request.form.get('email')
         password = request.form.get('password')
 
@@ -151,6 +149,49 @@ def login_user():
         if connection:
             connection.close()
 
+@app.route('/api/register', methods=['POST'])
+def register():
+   
+    name = request.form.get('name')
+    batch = request.form.get('batch')
+    department = request.form.get('department')
+    section = request.form.get('section')
+    email =request.form.get('email')
+    password =request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+    team =request.form.get('team')
+
+    if not all([name, batch, department, section, email, password, confirm_password, team]):
+        return jsonify({"error": "All fields are required"}), 400
+    
+    if password != confirm_password:
+        return jsonify({"error": "Passwords do not match"}), 400
+    
+    try:
+       
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT user_id FROM users WHERE email = %s", (email,))
+        if cursor.fetchone():
+            return jsonify({"error": "Email already registered"}), 400
+
+        cursor.execute("""
+        INSERT INTO users (name, batch, department, section, email, pwd, team)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """,(name, batch, department, section, email, password, team))
+        connection.commit()
+
+        return jsonify({"message": "User registered successfully"}), 201
+
+    except pymysql.MySQLError as e:
+        print(e)
+        return jsonify({"error": "Database error"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
