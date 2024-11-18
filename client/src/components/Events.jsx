@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card"
 import Timer from './Timer'
 import { useNavigate } from 'react-router-dom';
-const Events = ({ name, description,id,eventOn}) => {
+const Events = ({ name, description,id,eventOn,btnAction,tag}) => {
 
     const navigate=useNavigate();
     return (
@@ -24,9 +24,7 @@ const Events = ({ name, description,id,eventOn}) => {
                     <Timer eventOn={eventOn}/>
                 </CardContent>
                 <CardFooter>
-                    <button className='text-white bg-red-700 rounded-lg p-2 lg:p-3 w-full' onClick={()=>{
-                        navigate(`/events/${id}`)
-                    }} >Book Now</button>
+                    <button className='text-white bg-red-700 rounded-lg p-2 lg:p-3 w-full' onClick={btnAction} >{!tag?"Book Now":tag}</button>
                 </CardFooter>
             </Card>
         </div>

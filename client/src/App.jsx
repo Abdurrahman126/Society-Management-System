@@ -9,6 +9,8 @@ import Booking,{loader as bookingLoader,action as bookingAction} from './feature
 import Register,{action as registerAction} from './features/login/Register';
 import MemberHome from './features/home/MemberHome';
 import AdminHome from './features/admin/AdminHome';
+import EventsHandler from './features/admin/EventsHandler';
+import Nav from './features/admin/Nav';
 const router=createBrowserRouter(createRoutesFromElements(
   <>
   <Route path="/" element={<Navbar/>}>
@@ -19,8 +21,11 @@ const router=createBrowserRouter(createRoutesFromElements(
   </Route>
   <Route path="/events/:id" element={<Booking/>} loader={bookingLoader} action={bookingAction}/>
   <Route path="/members" element={<MemberHome/>} />
-  <Route path="/admin" element={<AdminHome/>} />
+  <Route path="/admin" element={<Nav/>} >
+  <Route index element={<AdminHome/>}/>
   
+  <Route path="manageEvents" element={<EventsHandler/>} loader={eventLoader}/>
+  </Route>
   </>)
 )
 
