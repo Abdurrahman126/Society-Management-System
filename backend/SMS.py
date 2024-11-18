@@ -158,7 +158,7 @@ def register():
     section = request.form.get('section')
     email =request.form.get('email')
     password =request.form.get('password')
-    confirm_password = request.form.get('confirm_password')
+    confirm_password = request.form.get('confirm')
     team =request.form.get('team')
 
     if not all([name, batch, department, section, email, password, confirm_password, team]):
@@ -192,6 +192,41 @@ def register():
             cursor.close()
         if connection:
             connection.close()
+
+@app.route('/api/add_event', methods=['POST'])
+def add_event():
+    event_title = request.form.get('event_title')
+    about_event = request.form.get('about_event')
+    event_date = request.form.get('event_date')
+    venue = request.form.get('venue')
+    booking_price = request.form.get('booking_price')
+    connection = get_connection()
+    
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                # Check for duplicate event title
+                cursor.execute("SELECT event_id FROM society_events WHERE event_title = %s", (event_title,))
+                if cursor.fetchone():
+                    return jsonify({"error": "Event title already exists"}), 400
+
+                # Insert the new event
+                cursor.execute(
+                    "INSERT INTO society_events (event_title, about_event, event_date, venue,booking_price) VALUES (%s, %s, %s, %s,%s)",
+                    (event_title, about_event, event_date, venue,booking_price)
+                )
+                connection.commit()
+
+                return jsonify({"message": "Event added successfully"}), 201
+        
+        except pymysql.MySQLError as err:
+            print("MySQL Error:", err)
+            return jsonify({"Error": f"Error while creating event: {str(err)}"}), 500
+
+        finally:
+            connection.close()
+    else:
+        return jsonify({"Error": "Database connection error"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
