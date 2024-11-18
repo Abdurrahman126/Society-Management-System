@@ -228,6 +228,112 @@ def add_event():
     else:
         return jsonify({"Error": "Database connection error"}), 500
 
+
+@app.route('/api/signin_admin',methods= ['GET'])
+def login_admin():
+    connection = get_connection()
+    
+    try:
+      
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if not all([email, password]):
+            return jsonify({'error': 'All fields are required.'}), 400
+
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT pwd FROM users WHERE email = %s AND is_admin = 1 AND role_as = 'admin'", (email,))
+            user = cursor.fetchone()
+
+            if user is None:
+                return jsonify({'error': 'User not found.'}), 404
+
+            stored_password = user['pwd']
+            if stored_password != password:
+                return jsonify({'error': 'Invalid credentials.'}), 401
+
+            return jsonify({'message': 'Login successful'}), 200
+
+    except Exception as e:
+        print(f"Error logging user in: {type(e).__name__}, {e}")
+        return jsonify({'error': 'Failed to login'}), 500
+
+    finally:
+        if connection:
+            connection.close()
+
+
+@app.route('/api/manage_admin',methods = ['POST'])
+def manage_admin():
+   
+    name = request.form.get('name')
+    batch = request.form.get('batch')
+    department = request.form.get('department')
+    section = request.form.get('section')
+    email =request.form.get('email')
+    password =request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+    team =request.form.get('team')
+
+    if not all([name, batch, department, section, email, password, confirm_password, team]):
+        return jsonify({"error": "All fields are required"}), 400
+    
+    if password != confirm_password:
+        return jsonify({"error": "Passwords do not match"}), 400
+    
+    try:
+       
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT user_id FROM users WHERE email = %s and is_admin = 1 and role_as = 'admin'", (email,))
+        if cursor.fetchone():
+            return jsonify({"error": "Email already registered"}), 400
+
+        cursor.execute("""
+        INSERT INTO users (name, batch, department, section, email, pwd, team,role_as,is_admin)
+        VALUES (%s, %s, %s, %s, %s, %s, %s,'admin',1)
+        """,(name, batch, department, section, email, password, team))
+        connection.commit()
+
+        return jsonify({"message": "Admin added successfully"}), 201
+
+    except pymysql.MySQLError as e:
+        print(e)
+        return jsonify({"error": "Database error"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+@app.route('/api/delete_event/<int:event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    connection = get_connection()
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                # Check if the event exists
+                cursor.execute("SELECT event_id FROM society_events WHERE event_id = %s", (event_id,))
+                if not cursor.fetchone():
+                    return jsonify({"error": "Event not found"}), 404
+
+                # Delete the event
+                cursor.execute("DELETE FROM society_events WHERE event_id = %s", (event_id,))
+                connection.commit()
+                return jsonify({"message": "Event deleted successfully"}), 200
+
+        except pymysql.MySQLError as err:
+            print("MySQL Error:", err)
+            return jsonify({"error": f"Error while deleting event: {str(err)}"}), 500
+
+        finally:
+            if connection:
+                connection.close()
+    else:
+        return jsonify({"error": "Database connection error"}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
     
