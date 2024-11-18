@@ -246,7 +246,7 @@ def login_admin():
             user = cursor.fetchone()
 
             if user is None:
-                return jsonify({'error': 'User not found.'}), 404
+                return jsonify({'error': 'admin not found.'}), 404
 
             stored_password = user['pwd']
             if stored_password != password:
@@ -262,6 +262,43 @@ def login_admin():
         if connection:
             connection.close()
 
+@app.route('/api/faculty_admin',methods = ['POST'])
+def faculty_admin():
+    email =request.form.get('email')
+    password =request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+
+    if not all([email, password, confirm_password]):
+        return jsonify({"error": "All fields are required"}), 400
+    
+    if password != confirm_password:
+        return jsonify({"error": "Passwords do not match"}), 400
+    
+    try:
+       
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT user_id FROM users WHERE email = %s and is_admin = 1 and role_as = 'admin'", (email,))
+        if cursor.fetchone():
+            return jsonify({"error": "Email already registered"}), 400
+
+        cursor.execute("""
+        INSERT INTO users (name, batch, department, section, email, pwd, team,role_as,is_admin)
+        VALUES ('Faculty', 'Faculty', 'Faculty', 'Faculty', %s, %s, 'Faculty','admin',1)
+        """,(email, password,))
+        connection.commit()
+
+        return jsonify({"message": "Admin added successfully"}), 201
+
+    except pymysql.MySQLError as e:
+        print(e)
+        return jsonify({"error": "Database error"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
 @app.route('/api/manage_admin',methods = ['POST'])
 def manage_admin():
