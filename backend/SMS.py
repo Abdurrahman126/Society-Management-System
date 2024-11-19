@@ -129,11 +129,11 @@ def login_user():
             return jsonify({'error': 'All fields are required.'}), 400
 
         with connection.cursor() as cursor:
-            cursor.execute("SELECT pwd FROM users WHERE email = %s", (email,))
+            cursor.execute("SELECT pwd FROM members WHERE email = %s", (email,))
             user = cursor.fetchone()
 
             if user is None:
-                return jsonify({'error': 'User not found.'}), 404
+                return jsonify({'error': 'Member not found.'}), 404
 
             stored_password = user['pwd']
             if stored_password != password:
@@ -171,12 +171,12 @@ def register():
        
         connection = get_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT user_id FROM users WHERE email = %s", (email,))
+        cursor.execute("SELECT member_id FROM members WHERE email = %s", (email,))
         if cursor.fetchone():
             return jsonify({"error": "Email already registered"}), 400
 
         cursor.execute("""
-        INSERT INTO users (name, batch, department, section, email, pwd, team)
+        INSERT INTO members (name, batch, department, section, email, pwd, team)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
         """,(name, batch, department, section, email, password, team))
         connection.commit()
@@ -242,7 +242,7 @@ def login_admin():
             return jsonify({'error': 'All fields are required.'}), 400
 
         with connection.cursor() as cursor:
-            cursor.execute("SELECT pwd FROM users WHERE email = %s AND is_admin = 1 AND role_as = 'admin'", (email,))
+            cursor.execute("SELECT pwd FROM members WHERE email = %s AND is_admin = 1 AND role_as = 'admin'", (email,))
             user = cursor.fetchone()
 
             if user is None:
@@ -262,10 +262,10 @@ def login_admin():
         if connection:
             connection.close()
 
-@app.route('/api/faculty_admin',methods = ['POST'])
+@app.route('/api/faculty_admin', methods=['POST'])
 def faculty_admin():
-    email =request.form.get('email')
-    password =request.form.get('password')
+    email = request.form.get('email')
+    password = request.form.get('password')
     confirm_password = request.form.get('confirm_password')
 
     if not all([email, password, confirm_password]):
@@ -275,17 +275,16 @@ def faculty_admin():
         return jsonify({"error": "Passwords do not match"}), 400
     
     try:
-       
         connection = get_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT user_id FROM users WHERE email = %s and is_admin = 1 and role_as = 'admin'", (email,))
+        cursor.execute("SELECT member_id FROM members WHERE email = %s and is_admin = 1 and role_as = 'admin'", (email,))
         if cursor.fetchone():
             return jsonify({"error": "Email already registered"}), 400
 
         cursor.execute("""
-        INSERT INTO users (name, batch, department, section, email, pwd, team,role_as,is_admin)
-        VALUES ('Faculty', 'Faculty', 'Faculty', 'Faculty', %s, %s, 'Faculty','admin',1)
-        """,(email, password,))
+        INSERT INTO members (name, batch, department, section, email, pwd, team, role_as, is_admin)
+        VALUES ('Faculty', 'Faculty', 'Faculty', 'Faculty', %s, %s, 'Faculty', 'admin', 1)
+        """, (email, password))
         connection.commit()
 
         return jsonify({"message": "Admin added successfully"}), 201
@@ -300,17 +299,17 @@ def faculty_admin():
         if connection:
             connection.close()
 
-@app.route('/api/manage_admin',methods = ['POST'])
+
+@app.route('/api/manage_admin', methods=['POST'])
 def manage_admin():
-   
     name = request.form.get('name')
     batch = request.form.get('batch')
     department = request.form.get('department')
     section = request.form.get('section')
-    email =request.form.get('email')
-    password =request.form.get('password')
+    email = request.form.get('email')
+    password = request.form.get('password')
     confirm_password = request.form.get('confirm_password')
-    team =request.form.get('team')
+    team = request.form.get('team')
 
     if not all([name, batch, department, section, email, password, confirm_password, team]):
         return jsonify({"error": "All fields are required"}), 400
@@ -319,17 +318,16 @@ def manage_admin():
         return jsonify({"error": "Passwords do not match"}), 400
     
     try:
-       
         connection = get_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT user_id FROM users WHERE email = %s and is_admin = 1 and role_as = 'admin'", (email,))
+        cursor.execute("SELECT member_id FROM members WHERE email = %s and is_admin = 1 and role_as = 'admin'", (email,))
         if cursor.fetchone():
             return jsonify({"error": "Email already registered"}), 400
 
         cursor.execute("""
-        INSERT INTO users (name, batch, department, section, email, pwd, team,role_as,is_admin)
-        VALUES (%s, %s, %s, %s, %s, %s, %s,'admin',1)
-        """,(name, batch, department, section, email, password, team))
+        INSERT INTO members (name, batch, department, section, email, pwd, team, role_as, is_admin)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, 'admin', 1)
+        """, (name, batch, department, section, email, password, team))
         connection.commit()
 
         return jsonify({"message": "Admin added successfully"}), 201
@@ -366,6 +364,135 @@ def delete_event(event_id):
 
         finally:
             if connection:
+                connection.close()
+    else:
+        return jsonify({"error": "Database connection error"}), 500
+
+@app.route('/api/announcements',methods = ['GET'])
+def view_announcments():
+    connection = get_connection()
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT * FROM announcements")
+                announcements = cursor.fetchall()
+            return jsonify(announcements)
+        
+        except pymysql.MySQLError as err:
+            print("MySQL Error:", err)
+            return jsonify({"error": f"Error while fetching announcements: {str(err)}"}), 500
+        finally:
+            if connection:
+                connection.close()
+        
+    else:
+        return jsonify({"error": "Database connection error"}), 500
+
+@app.route('/api/add_announcements', methods=['POST'])
+def add_announcements():
+    title = request.form.get('title')
+    content = request.form.get('content')
+
+    connection = get_connection()
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO announcements (announcement_title, content) VALUES (%s, %s)", 
+                    (title, content)
+                )
+            connection.commit()
+            return jsonify({"message": "Announcement added successfully"}), 201
+     
+        except pymysql.MySQLError as err:
+            print("MySQL Error:", err)
+            return jsonify({"error": f"Error while adding announcement: {str(err)}"}), 500
+        finally:
+            connection.close()
+    
+    else:
+        return jsonify({"error": "Database connection error"}), 500
+    
+
+@app.route('/api/toggle_induction', methods=['POST'])
+def toggle_induction():
+    new_status = request.form.get('new_status') 
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE inductions_live SET islive = %s" ,(new_status))
+    conn.commit()
+    return jsonify({"success": True, "message": "Induction status updated"})
+
+@app.route('/api/applicants',methods = ['GET'])
+def fetch_applicants():
+    connection = get_connection()
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT * FROM inductions")
+                applicants = cursor.fetchall()
+            return jsonify(applicants)
+        
+        except pymysql.MySQLError as err:
+            print("MySQL Error:", err)
+            return jsonify({"error": f"Error while fetching applicants: {str(err)}"}), 500
+        finally:
+            if connection:
+                connection.close()
+        
+    else:
+        return jsonify({"error": "Database connection error"}), 500
+
+@app.route('/api/register_induction', methods=['POST'])
+def register_induction():
+        name = request.form.get('name')
+        batch = request.form.get('batch')
+        department = request.form.get('department')
+        section = request.form.get('section')
+        email = request.form.get('email')
+        position = request.form.get('position')
+
+        connection = get_connection()
+        if connection:
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute("INSERT INTO inductions (name,batch,department,section,email,position) VALUES (%s, %s,%s,%s,%s,%s)", 
+                                   (name,batch,department,section,email,position))
+                connection.commit()
+                return jsonify({"message": "Successfully registered for induction!", "success": True})
+          
+            except pymysql.MySQLError as err:
+                print("MySQL Error:", err)
+                return jsonify({"error": f"Error while registering applicant: {str(err)}"}), 500
+            finally:
+                connection.close()
+        else:
+            return jsonify({"error": "Database connection error"}), 500
+
+@app.route('/api/appoint_excom',methods = ['POST'])
+def appoint_excom():
+    email = request.form.get('email')
+    connection = get_connection()
+
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("select * from inductions where email = %s",(email))
+                excom_member = cursor.fetchone()  
+                
+                if excom_member:
+                   
+                    cursor.execute("INSERT INTO excom (induction_id, name, batch, department, section, email, position) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                                   (excom_member['induction_id'], excom_member['name'], excom_member['batch'], excom_member['department'], excom_member['section'], excom_member['email'], excom_member['position']))
+                    connection.commit()
+                    return jsonify({"success": True, "message": "Successfully appointed to excom."})
+                else:
+                    return jsonify({"success": False, "message": "No such member found."}), 404
+        except pymysql.MySQLError as err:
+                print("MySQL Error:", err)
+                return jsonify({"error": f"Error while appointing member: {str(err)}"}), 500
+        finally:
                 connection.close()
     else:
         return jsonify({"error": "Database connection error"}), 500
