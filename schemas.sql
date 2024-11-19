@@ -1,11 +1,17 @@
+
 CREATE TABLE users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(50) NOT NULL UNIQUE,
-    pwd VARCHAR(500) unique,
-    role_as VARCHAR(50),
-    is_admin TINYINT(1) NOT NULL DEFAULT 0,
-    security_key VARCHAR(255)
+    user_id int Primary key AUTO_INCREMENT,
+    name varchar(100) NOT NULL,
+    batch varchar(20) NOT NULL,
+    department varchar(50) NOT NULL,
+    section varchar(10) NOT NULL,
+    email varchar(100) NOT NULL UNIQUE,
+    pwd varchar(8) NOT NULL UNIQUE,
+    team varchar(50) NOT NULL,
+    role_as varchar(255) DEFAULT 'user',
+    is_admin tinyint(1) NOT NULL DEFAULT 0,
 );
+
 
 CREATE TABLE bookings (
     booking_id INT AUTO_INCREMENT PRIMARY KEY,
