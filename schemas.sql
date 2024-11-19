@@ -1,6 +1,6 @@
 
-CREATE TABLE users (
-    user_id int Primary key AUTO_INCREMENT,
+CREATE TABLE members (
+    member_id int Primary key AUTO_INCREMENT,
     name varchar(100) NOT NULL,
     batch varchar(20) NOT NULL,
     department varchar(50) NOT NULL,
@@ -11,6 +11,19 @@ CREATE TABLE users (
     role_as varchar(255) DEFAULT 'user',
     is_admin tinyint(1) NOT NULL DEFAULT 0,
 );
+
+
+CREATE TABLE excom (
+    induction_id int primary key AUTO_INCREMENT,  
+    name varchar(100) NOT NULL,
+    batch varchar(20) NOT NULL,
+    department varchar(50) NOT NULL,
+    section varchar(10) NOT NULL,
+    email varchar(100) NOT NULL UNIQUE,
+    position varchar(50) NOT NULL unique
+    
+);
+
 
 
 CREATE TABLE bookings (
@@ -67,18 +80,16 @@ CREATE TABLE feedback (
 
 
 CREATE TABLE inductions (
-    induction_id INT AUTO_INCREMENT PRIMARY KEY,
-    applying_for VARCHAR(20) NOT NULL,
-    applicant_name VARCHAR(500),
-    applicant_id INT,
-    FOREIGN KEY (applicant_id) REFERENCES users(user_id)
+    induction_id int primary key AUTO_INCREMENT,  
+    name varchar(100) NOT NULL,
+    batch varchar(20) NOT NULL,
+    department varchar(50) NOT NULL,
+    section varchar(10) NOT NULL,
+    email varchar(100) NOT NULL UNIQUE,
+    position varchar(50) NOT NULL,
+    
 );
 
-CREATE TABLE members (
-    member_id INT AUTO_INCREMENT PRIMARY KEY,
-    member_name VARCHAR(30),
-    appointed_as VARCHAR(20) NOT NULL
-);
 
 CREATE TABLE mentor (
     mentor_id INT AUTO_INCREMENT PRIMARY KEY,
