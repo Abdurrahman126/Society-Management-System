@@ -17,11 +17,11 @@ const Home = () => {
 </div>
     
     </div>
-    {/* <div className='w-full bg-white  p-6'> */}
+    <div className='w-full bg-white h-[1500px] p-6'>
 
 <h1 className='text-white  font-medium text-2xl align-middle'>Announcements to be added</h1>
 {/* <News/> */}
-{/* </div> */}
+</div>
 
     <Footer/>
     </>

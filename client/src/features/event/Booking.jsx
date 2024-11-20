@@ -64,8 +64,13 @@ const Booking = () => {
     <input name="batch" type="text" required className="bg-gray-300 rounded-lg" />
     <label htmlFor="email" className="text-black">Email:</label>
     <input name="email" type="email" required className="bg-gray-300 rounded-lg" />
+    <label htmlFor="roll" className="text-black">Roll Number:</label>
+    <input name="roll" type="email" required className="bg-gray-300 rounded-lg" />
     <label htmlFor="number" className="text-black">Phone:</label>
     <input name="number" type="text" required className="bg-gray-300 rounded-lg" />
+    <label htmlFor="transCode" className="text-black">Transaction Code:</label>
+    <input name="transCode" type="text" required className="bg-gray-300 rounded-lg" />
+    
     <button className='bg-red-600 text-white lg:p-4 p-3 rounded-lg lg:w-[70%] w-[90%]' type='submit'>Book</button>
        
 </Form>

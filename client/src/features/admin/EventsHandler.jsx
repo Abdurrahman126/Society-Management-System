@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -112,9 +113,9 @@ const EventsHandler = () => {
           <input name="venue" type="text" placeholder='Audi'  className='text-xs  lg:text-base text-black border-black border-2 rounded-lg p-2 w-[90%] lg:w-[70%] mb-8'/>
           
           <input name="event_date" type="date" className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'/>
-          
+          <DialogClose asChild>
           <Button type="submit">Save changes</Button>
-     
+          </DialogClose>
           </Form>
           
         <DialogFooter>

@@ -46,7 +46,8 @@ const AdminHome = () => {
                   </CardFooter>
               </Card>
         
-            <Card className="border-none flex flex-col  bg-white bg-opacity-90 w-[20%] aspect-square  cursor-pointer hover:scale-105 hover:ease-in transition-all ">
+            <Card className="border-none flex flex-col  bg-white bg-opacity-90 w-[20%] aspect-square  cursor-pointer hover:scale-105 hover:ease-in transition-all "  onClick={()=>{
+            navigate('/admin/control')}}>
                 <CardHeader>
                     <CardTitle>
                       <MdPeople className='text-red-600 text-5xl'/>

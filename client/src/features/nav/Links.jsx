@@ -17,8 +17,8 @@ const Links = ({hide}) => {
     <div className={`justify-evenly items-center gap-8 mr-auto  lg:flex ${hide?" flex flex-col":"hidden"}`}>
     <Link to="/events" className='cursor-pointer'>Events</Link>
     <Link to="/inductions" className='cursor-pointer'>Inductions</Link>
-    <span className='cursor-pointer'>Certifications</span>
-    <NavigationMenu className="">
+    <span className='cursor-pointer'>Forum</span>
+    {/* <NavigationMenu className="">
 <NavigationMenuList>
   <NavigationMenuItem>
     <NavigationMenuTrigger className="!bg-transparent !text-white">Our Team</NavigationMenuTrigger>
@@ -33,7 +33,7 @@ const Links = ({hide}) => {
     </NavigationMenuContent>
   </NavigationMenuItem>
 </NavigationMenuList>
-</NavigationMenu>
+</NavigationMenu> */}
     </div>
     {location.pathname!="/login" && <Link to="/login">  <button className="text-white bg-red-700 rounded-xl p-1 text-xs lg:text-base lg:p-2 lg:px-6 lg:rounded-3xl ">Join Us</button></Link>
 }
