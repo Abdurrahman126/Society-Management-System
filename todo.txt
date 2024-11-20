@@ -1,10 +1,11 @@
-delete events chordo
-add events DONEEEE
+delete events 
+
 manage admin 
 
 
-add announcemnets
 
 
+add events DONEEEE
+inductions into databse DONEEE
+add announcemnets DONEE
 
-for accepting induction:
