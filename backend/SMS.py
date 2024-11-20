@@ -19,7 +19,8 @@ def get_connection():
             host='localhost',
             user='newuser',
             password='@Akhan25',
-            database='society_management_system_decs',
+            # change to _decs
+            database='society_management_system',
             cursorclass=DictCursor
         )
         return connection
@@ -127,7 +128,7 @@ def login_user():
     
     try:
       
-        Rollno= request.form.get('Roll no')
+        Rollno= request.form.get('rollno')
         password = request.form.get('password')
 
         if not all([Rollno, password]):
@@ -154,10 +155,10 @@ def login_user():
         if connection:
             connection.close()
 
-#checked
+#checked-integrated(need to check)
 @app.route('/api/register', methods=['POST'])
 def register():
-    Rollno = request.form.get('Roll no')
+    Rollno = request.form.get('rollno')
     name = request.form.get('name')
     batch = request.form.get('batch')
     department = request.form.get('department')
@@ -197,7 +198,7 @@ def register():
             cursor.close()
         if connection:
             connection.close()
-#checked
+#checked-integrated
 @app.route('/api/add_event', methods=['POST'])
 def add_event():
     event_title = request.form.get('event_title')
@@ -327,7 +328,7 @@ def faculty_admin():
         if connection:
             connection.close()
 
-#checked
+#checked-integrated
 @app.route('/api/fetch_excom',methods =["GET"])
 def fetch_excom():
     connection = get_connection()
@@ -348,28 +349,30 @@ def fetch_excom():
     else:
         return jsonify({"error": "Database connection error"}), 500
 
-#checked
+#checked-integrated
 @app.route('/api/add_admin', methods=['POST'])
 def add_admin():
-    Rollno = request.form.get('Rollno')
+    data = request.get_json()  # This is how you get JSON data from the body
+    rollno = data.get('rollno')
+    password = data.get('password')
 
     connection = get_connection()
 
     if connection:
         try:
             with connection.cursor() as cursor:
-                print(f"Checking existence for Rollno: {Rollno}")  # Debug log
-                cursor.execute("SELECT * FROM excom WHERE roll_number = %s", (Rollno,))
+                print(f"Checking existence for Rollno: {rollno}")  # Debug log
+                cursor.execute("SELECT * FROM excom WHERE roll_number = %s", (rollno,))
                 admin = cursor.fetchone()
 
                 if admin:
                     print(f"Found Excom: {admin}")  # Debug log
                     cursor.execute("INSERT INTO admin (roll_number, email, admin_password) VALUES (%s, %s, %s)",
-                                   (admin['roll_number'], admin['email'], admin['password']))
+                                   (admin['roll_number'], admin['email'], password))
                     connection.commit()
                     return jsonify({"success": True, "message": "Successfully appointed as Admin."})
                 else:
-                    print(f"No Excom found for Rollno: {Rollno}")  # Debug log
+                    print(f"No Excom found for Rollno: {rollno}")  # Debug log
                     return jsonify({"success": False, "message": "No such Excom found."}), 404
         except pymysql.MySQLError as err:
                 print("MySQL Error:", err)
@@ -379,7 +382,7 @@ def add_admin():
     else:
         return jsonify({"error": "Database connection error"}), 500
 
-#checked
+#checked-integrated but not to ui
 @app.route('/api/announcements',methods = ['GET'])
 def view_announcments():
     connection = get_connection()
@@ -399,12 +402,12 @@ def view_announcments():
         
     else:
         return jsonify({"error": "Database connection error"}), 500
-#checked
+#checked-integrated
 @app.route('/api/add_announcements', methods=['POST'])
 def add_announcements():
     title = request.form.get('title')
     content = request.form.get('content')
-    link = request.form.get('Link')
+    link = request.form.get('link')
 
     connection = get_connection()
     if connection:
@@ -463,7 +466,7 @@ def toggle_induction():
     conn.commit()
     return jsonify({"success": True, "message": "Induction status updated"})
 
-#checked
+#checked-integrated
 @app.route('/api/applicants',methods = ['GET'])
 def fetch_applicants():
     connection = get_connection()
@@ -484,17 +487,17 @@ def fetch_applicants():
     else:
         return jsonify({"error": "Database connection error"}), 500
 
-#checked
+#checked-integrated
 @app.route('/api/register_induction', methods=['POST'])
 def register_induction():
-        Rollno = request.form.get('Roll no').replace(" ", "")
+        Rollno = request.form.get('rollno').replace(" ", "")
         name = request.form.get('name')
         batch = request.form.get('batch')
         department = request.form.get('department')
         email = request.form.get('email').replace(" ", "")
         position = request.form.get('position')
-        past_experience = request.form.get('Past Experience')
-        motivation=request.form.get('Motivation')
+        past_experience = request.form.get('past_experience')
+        motivation=request.form.get('motivation')
 
         connection = get_connection()
         if connection:
@@ -513,34 +516,51 @@ def register_induction():
         else:
             return jsonify({"error": "Database connection error"}), 500
 
-#checked
-@app.route('/api/appoint_excom',methods = ['POST'])
+#checked-integrated
+from flask import request, jsonify
+
+@app.route('/api/appoint_excom', methods=['POST'])
 def appoint_excom():
-    email = request.form.get('email').replace(" ", "")
+    data = request.get_json()  # Parse JSON from the request body
+    email = data.get('email', '').strip()  # Extract and clean the email
+    if not email:
+        return jsonify({"success": False, "message": "Email is required"}), 400
+
     connection = get_connection()
 
     if connection:
         try:
             with connection.cursor() as cursor:
-                cursor.execute("select * from inductions where email = %s",(email))
-                excom_member = cursor.fetchone()  
-                
+                # Check if the member exists in the `inductions` table
+                cursor.execute("SELECT * FROM inductions WHERE email = %s", (email,))
+                excom_member = cursor.fetchone()
+
                 if excom_member:
-                   
-                    cursor.execute("INSERT INTO excom (roll_number, name, batch, department, email, position) VALUES (%s, %s, %s, %s, %s, %s)",
-                                   (excom_member['roll_number'], excom_member['name'], excom_member['batch'], excom_member['department'],excom_member['email'], excom_member['position']))
+                    # Insert the member into the `excom` table
+                    cursor.execute(
+                        "INSERT INTO excom (roll_number, name, batch, department, email, position) "
+                        "VALUES (%s, %s, %s, %s, %s, %s)",
+                        (
+                            excom_member['roll_number'],
+                            excom_member['name'],
+                            excom_member['batch'],
+                            excom_member['department'],
+                            excom_member['email'],
+                            excom_member['position'],
+                        ),
+                    )
                     connection.commit()
                     return jsonify({"success": True, "message": "Successfully appointed to excom."})
                 else:
                     return jsonify({"success": False, "message": "No such member found."}), 404
+
         except pymysql.MySQLError as err:
-                print("MySQL Error:", err)
-                return jsonify({"error": f"Error while appointing member: {str(err)}"}), 500
+            print("MySQL Error:", err)
+            return jsonify({"error": f"Error while appointing member: {str(err)}"}), 500
         finally:
-                connection.close()
+            connection.close()
     else:
         return jsonify({"error": "Database connection error"}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
