@@ -56,7 +56,6 @@ CREATE TABLE excom (
     department VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     position VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL,
     FOREIGN KEY (roll_number) REFERENCES inductions(roll_number)
 );
 
