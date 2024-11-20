@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaPlus, } from "react-icons/fa";
 import { MdPeople } from "react-icons/md";
 import { TfiAnnouncement } from "react-icons/tfi";
+import { RiTeamFill } from "react-icons/ri";
 import {
   Card,
   CardContent,
@@ -13,6 +14,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
 const AdminHome = () => {
     ///this page woudl contain all the functions the admin can perform 
     const navigate=useNavigate();
@@ -46,7 +60,9 @@ const AdminHome = () => {
                 </CardFooter> 
             </Card>
 
-            <Card className="border-none flex flex-col  bg-white bg-opacity-90 w-[20%] aspect-square  cursor-pointer  hover:scale-105 hover:ease-in transition-all " >
+            <Card className="border-none flex flex-col  bg-white bg-opacity-90 w-[20%] aspect-square  cursor-pointer  hover:scale-105 hover:ease-in transition-all " onClick={()=>{
+            navigate('/admin/announce')
+          }}>
                 <CardHeader>
                     <CardTitle>
                       <TfiAnnouncement className='text-red-600 text-5xl '/>
@@ -59,7 +75,27 @@ const AdminHome = () => {
 
                 </CardFooter> 
             </Card>
-              
+
+            
+
+
+
+            <Card className="border-none flex flex-col  bg-white bg-opacity-90 w-[20%] aspect-square  cursor-pointer  hover:scale-105 hover:ease-in transition-all " onClick={()=>{
+            navigate('/admin/inductions')
+          }}>
+                <CardHeader>
+                    <CardTitle>
+                      <RiTeamFill className='text-red-600 text-5xl '/>
+                     
+                    </CardTitle>
+
+                </CardHeader>
+                <CardFooter>
+                <h1 className='text-3xl m-0 ml-auto self-center font-medium'> Inductions</h1>
+
+                </CardFooter> 
+            </Card>
+
             </div>
           
   

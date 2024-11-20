@@ -1,0 +1,10 @@
+delete events chordo
+add events DONEEEE
+manage admin 
+
+
+add announcemnets
+
+
+
+for accepting induction:

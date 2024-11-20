@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 //this is redundant we will delete it later
 import Events from '@/components/Events';
-import { useLoaderData } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useLoaderData,Form } from 'react-router-dom';
+import { useDispatch ,useSelector} from 'react-redux';
 import { FaPlus, } from "react-icons/fa";
 import {
   Card,
@@ -12,7 +12,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { eventDeleted, eventsFetched } from '../event/eventSlice';
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { eventDeleted, eventsFetched ,selectEvents} from '../event/eventSlice';
 
 export async function loader()
 {
@@ -30,15 +42,35 @@ export async function loader()
         return null;
       }
 }
+export const action = async ({ request }) => {
+  const formData = new URLSearchParams(await request.formData());
+  
+  const response = await fetch('http://127.0.0.1:5001/api/add_event', {
+    method: 'POST',
+    body: formData,
+  });
 
+  const data = await response.json();
+
+  if (response.ok) {
+    return  {message:data.message}
+  } else {
+    console.log(data.message)
+    return { error: data.error }
+  }
+};
 
 const EventsHandler = () => {
 
   const array=useLoaderData();
   const dispatch=useDispatch();
-  dispatch(eventsFetched(array));
-
-  const events=array.map((item)=>{
+  useEffect(()=>{
+    dispatch(eventsFetched(array));
+  
+  },[array])
+  const state=useSelector(selectEvents)
+  console.log(state);
+  const events=state.map((item)=>{
     return(
     <Events key={item.event_id} id={item.event_id} name={item.event_title}
     description={item.about_event} eventOn={item.event_date} btnAction={()=>{dispatch(eventDeleted(item.event_id))}} tag="Delete Event"/>
@@ -52,7 +84,10 @@ const EventsHandler = () => {
         <h1 className='text-white text-3xl'>Events Live</h1>
         <div className='flex justify-evenly items-stretch flex-wrap gap-y-5'>
     {events}
-    <Card className="border-none flex flex-col justify-center items-center  bg-white bg-opacity-90 w-[20%] aspect-square cursor-pointer  " 
+    
+<Dialog>
+      <DialogTrigger asChild>
+      <Card className="border-none flex flex-col justify-center items-center  bg-white bg-opacity-90 w-[20%] aspect-square cursor-pointer  " 
             >
                   <CardHeader>
                       <CardTitle className="flex justify-center items-center">
@@ -64,6 +99,31 @@ const EventsHandler = () => {
                       </CardFooter>
                   </CardHeader>
               </Card>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Enter Details</DialogTitle>
+          <DialogDescription>
+          </DialogDescription>
+        </DialogHeader>
+        <Form method='post' className="w-[90%] flex flex-col justify-evenly items-center gap-4">
+          <input name="event_title" placeholder='Annual Dinner' className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'/>
+          <input name="about_event" type="text" placeholder='Please pass lelo'  className='text-xs  lg:text-base text-black border-black border-2 rounded-lg p-2 w-[90%] lg:w-[70%] mb-8'/>
+          <input name="venue" type="text" placeholder='Audi'  className='text-xs  lg:text-base text-black border-black border-2 rounded-lg p-2 w-[90%] lg:w-[70%] mb-8'/>
+          
+          <input name="event_date" type="date" className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'/>
+          
+          <Button type="submit">Save changes</Button>
+     
+          </Form>
+          
+        <DialogFooter>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+
+
         
 </div>
     </div>

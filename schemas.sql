@@ -1,105 +1,4 @@
-
-CREATE TABLE members (
-    member_id int Primary key AUTO_INCREMENT,
-    name varchar(100) NOT NULL,
-    batch varchar(20) NOT NULL,
-    department varchar(50) NOT NULL,
-    section varchar(10) NOT NULL,
-    email varchar(100) NOT NULL UNIQUE,
-    pwd varchar(8) NOT NULL UNIQUE,
-    team varchar(50) NOT NULL,
-    role_as varchar(255) DEFAULT 'user',
-    is_admin tinyint(1) NOT NULL DEFAULT 0,
-);
-
-
-CREATE TABLE excom (
-    induction_id int primary key AUTO_INCREMENT,  
-    name varchar(100) NOT NULL,
-    batch varchar(20) NOT NULL,
-    department varchar(50) NOT NULL,
-    section varchar(10) NOT NULL,
-    email varchar(100) NOT NULL UNIQUE,
-    position varchar(50) NOT NULL unique
-    
-);
-
-
-
-CREATE TABLE bookings (
-    booking_id INT AUTO_INCREMENT PRIMARY KEY,
-    event_id INT NOT NULL,
-    s_name VARCHAR(255) NOT NULL,
-    batch VARCHAR(500) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    FOREIGN KEY (event_id) REFERENCES society_events(event_id)
-);
-
-
-CREATE TABLE achievements (
-    achievement_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    achievement_title VARCHAR(20) NOT NULL,
-    description VARCHAR(500) NOT NULL,
-    date_of_achievement DATE NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
-);
-
-CREATE TABLE announcements (
-    announcement_id INT AUTO_INCREMENT PRIMARY KEY,
-    announcement_title VARCHAR(50) NOT NULL UNIQUE,
-    content VARCHAR(500) NOT NULL
-);
-
-
-CREATE TABLE attendance (
-    attendance_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    event_id INT,
-    was_present TINYINT(1) NOT NULL DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (event_id) REFERENCES events(event_id)
-);
-
-CREATE TABLE certifications (
-    certification_id INT AUTO_INCREMENT PRIMARY KEY,
-    participant_id INT,
-    person_name VARCHAR(30),
-    certification_for VARCHAR(200) NOT NULL,
-    FOREIGN KEY (participant_id) REFERENCES participants(participant_id)
-);
-
-CREATE TABLE feedback (
-    feedback_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    feedback_content VARCHAR(500) NOT NULL,
-    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
-);
-
-
-CREATE TABLE inductions (
-    induction_id int primary key AUTO_INCREMENT,  
-    name varchar(100) NOT NULL,
-    batch varchar(20) NOT NULL,
-    department varchar(50) NOT NULL,
-    section varchar(10) NOT NULL,
-    email varchar(100) NOT NULL UNIQUE,
-    position varchar(50) NOT NULL,
-    
-);
-
-
-CREATE TABLE mentor (
-    mentor_id INT AUTO_INCREMENT PRIMARY KEY,
-    mentor_user_id INT,
-    mentor_name VARCHAR(30),
-    mentor_email VARCHAR(50),
-    FOREIGN KEY (mentor_user_id) REFERENCES users(user_id)
-);
-
-
+-- Table for society events
 CREATE TABLE society_events (
     event_id INT AUTO_INCREMENT PRIMARY KEY,
     event_title VARCHAR(100) NOT NULL,
@@ -109,4 +8,99 @@ CREATE TABLE society_events (
     booking_price INT
 );
 
+-- Table for bookings
+CREATE TABLE bookings (
+    event_id INT NOT NULL,
+    roll_number VARCHAR(255) NOT NULL,
+    s_name VARCHAR(255) NOT NULL,
+    batch VARCHAR(20) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    transaction_id INT UNIQUE,
+    PRIMARY KEY (event_id, roll_number),
+    FOREIGN KEY (event_id) REFERENCES society_events(event_id)
+);
 
+-- Table for announcements
+CREATE TABLE announcements (
+    announcement_id INT AUTO_INCREMENT PRIMARY KEY,
+    announcement_title VARCHAR(50) NOT NULL UNIQUE,
+    content VARCHAR(500) NOT NULL,
+    link VARCHAR(255) DEFAULT NULL
+);
+
+-- Table for forum posts
+CREATE TABLE forum (
+    feedback_id INT AUTO_INCREMENT PRIMARY KEY,
+    content TEXT NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table for inductions
+CREATE TABLE inductions (
+    roll_number VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    batch VARCHAR(20) NOT NULL,
+    department VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    position VARCHAR(50) NOT NULL,
+    past_experience TEXT,
+    motivation TEXT
+);
+
+-- Table for executive committee (excom)
+CREATE TABLE excom (
+    roll_number VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    batch VARCHAR(20) NOT NULL,
+    department VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    position VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    FOREIGN KEY (roll_number) REFERENCES inductions(roll_number)
+);
+
+-- Table for members
+CREATE TABLE members (
+    roll_number VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    batch VARCHAR(20) NOT NULL,
+    department VARCHAR(50) NOT NULL,
+    section VARCHAR(10) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    pwd VARCHAR(255) NOT NULL,
+    team VARCHAR(50) NOT NULL
+);
+
+-- Table for teams
+CREATE TABLE teams (
+    roll_number VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    position VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+-- Table for admin (assuming excom members can be admins)
+CREATE TABLE admin (
+    roll_number VARCHAR(255) PRIMARY KEY,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    admin_password VARCHAR(255) NOT NULL,
+    FOREIGN KEY (roll_number) REFERENCES excom(roll_number)
+);
+
+-- Table for meetings
+CREATE TABLE meetings (
+    meeting_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    purpose TEXT NOT NULL
+);
+
+-- Table for attendance records
+CREATE TABLE attendance (
+    meeting_id INT,
+    member_id VARCHAR(255),
+    attendance BOOLEAN NOT NULL,
+    PRIMARY KEY (meeting_id, member_id),
+    FOREIGN KEY (meeting_id) REFERENCES meetings(meeting_id),
+    FOREIGN KEY (member_id) REFERENCES members(roll_number)
+);

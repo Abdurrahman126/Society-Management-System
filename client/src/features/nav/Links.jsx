@@ -16,7 +16,7 @@ const Links = ({hide}) => {
     <>
     <div className={`justify-evenly items-center gap-8 mr-auto  lg:flex ${hide?" flex flex-col":"hidden"}`}>
     <Link to="/events" className='cursor-pointer'>Events</Link>
-    <span className='cursor-pointer'>Inductions</span>
+    <Link to="/inductions" className='cursor-pointer'>Inductions</Link>
     <span className='cursor-pointer'>Certifications</span>
     <NavigationMenu className="">
 <NavigationMenuList>

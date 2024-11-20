@@ -9,8 +9,11 @@ import Booking,{loader as bookingLoader,action as bookingAction} from './feature
 import Register,{action as registerAction} from './features/login/Register';
 import MemberHome from './features/home/MemberHome';
 import AdminHome from './features/admin/AdminHome';
-import EventsHandler from './features/admin/EventsHandler';
+import EventsHandler,{action as eventHandlerAction} from './features/admin/EventsHandler';
 import Nav from './features/admin/Nav';
+import Announcement ,{action as announcementAction}from './features/admin/Announcement';
+import Inductions from './features/admin/Inductions';
+import Team from './features/team/Team';
 const router=createBrowserRouter(createRoutesFromElements(
   <>
   <Route path="/" element={<Navbar/>}>
@@ -21,10 +24,15 @@ const router=createBrowserRouter(createRoutesFromElements(
   </Route>
   <Route path="/events/:id" element={<Booking/>} loader={bookingLoader} action={bookingAction}/>
   <Route path="/members" element={<MemberHome/>} />
+  <Route path="/inductions" element={<Team/>} />
+ 
   <Route path="/admin" element={<Nav/>} >
-  <Route index element={<AdminHome/>}/>
   
-  <Route path="manageEvents" element={<EventsHandler/>} loader={eventLoader}/>
+  <Route index element={<AdminHome/>}/>
+ 
+  <Route path="manageEvents" element={<EventsHandler/>} loader={eventLoader} action={eventHandlerAction}/>
+  <Route path="announce" element={<Announcement/>} action={announcementAction}/>
+ 
   </Route>
   </>)
 )
