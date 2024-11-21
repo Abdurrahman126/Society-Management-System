@@ -538,8 +538,8 @@ def appoint_excom():
                 if excom_member:
                     # Insert the member into the `excom` table
                     cursor.execute(
-                        "INSERT INTO excom (roll_number, name, batch, department, email, position) "
-                        "VALUES (%s, %s, %s, %s, %s, %s)",
+                        "INSERT INTO excom (roll_number, name, batch, department, email, position,password) "
+                        "VALUES (%s, %s, %s, %s, %s, %s,%s)",
                         (
                             excom_member['roll_number'],
                             excom_member['name'],
@@ -547,6 +547,7 @@ def appoint_excom():
                             excom_member['department'],
                             excom_member['email'],
                             excom_member['position'],
+                            'fast1234'
                         ),
                     )
                     connection.commit()
