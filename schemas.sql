@@ -16,6 +16,7 @@ CREATE TABLE bookings (
     batch VARCHAR(20) NOT NULL,
     phone VARCHAR(20) NOT NULL,
     transaction_id INT UNIQUE,
+    email varchar(100) not null;
     PRIMARY KEY (event_id, roll_number),
     FOREIGN KEY (event_id) REFERENCES society_events(event_id)
 );

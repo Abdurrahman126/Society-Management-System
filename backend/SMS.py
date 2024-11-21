@@ -20,7 +20,7 @@ def get_connection():
             user='newuser',
             password='@Akhan25',
             # change to _decs
-            database='society_management_system',
+            database='society_management_system_decs',
             cursorclass=DictCursor
         )
         return connection
@@ -121,27 +121,26 @@ def submit_booking():
         if connection:
             connection.close()
 
-#checked
+# updated check
 @app.route('/api/login', methods=['POST'])
 def login_user():
     connection = get_connection()
-    
+
     try:
-      
-        Rollno= request.form.get('rollno')
+        Rollno = request.form.get('rollno')
         password = request.form.get('password')
 
         if not all([Rollno, password]):
             return jsonify({'error': 'All fields are required.'}), 400
 
         with connection.cursor() as cursor:
-            cursor.execute("SELECT pwd FROM members WHERE roll_number = %s", (Rollno,))
+            cursor.execute("SELECT pwd AS password FROM members WHERE roll_number = %s UNION SELECT password FROM excom WHERE roll_number = %s", (Rollno, Rollno))
             user = cursor.fetchone()
 
             if user is None:
                 return jsonify({'error': 'Member not found.'}), 404
 
-            stored_password = user['pwd']
+            stored_password = user['password']
             if stored_password != password:
                 return jsonify({'error': 'Invalid credentials.'}), 401
 
@@ -154,6 +153,7 @@ def login_user():
     finally:
         if connection:
             connection.close()
+
 
 #checked-integrated(need to check)
 @app.route('/api/register', methods=['POST'])
@@ -382,6 +382,45 @@ def add_admin():
     else:
         return jsonify({"error": "Database connection error"}), 500
 
+@app.route('/api/change_password', methods=['POST'])
+def change_password():
+    connection = get_connection()
+    if not connection:
+        return jsonify({"error": "database connection error"}), 500
+
+    try:
+        roll_number = request.form.get('Roll number')
+        current_password = request.form.get('Current password')
+        new_password = request.form.get('New password')
+
+        if not all([roll_number, current_password, new_password]):
+            return jsonify({'error': 'All fields are required.'}), 400
+
+        with connection.cursor() as cursor:
+           
+            cursor.execute("select admin_password from admin where roll_number = %s", (roll_number,))
+            admin = cursor.fetchone()
+
+            if admin is None:
+                return jsonify({'error': 'Admin not found.'}), 404
+
+            if admin['admin_password']!=current_password:
+                return jsonify({'error': 'Current password is incorrect.'}), 401
+
+            
+            cursor.execute("update admin set admin_password = %s where roll_number = %s", (new_password, roll_number))
+            connection.commit()
+
+            return jsonify({'message': 'Password updated successfully.'}), 200
+
+    except Exception as e:
+        print(f"Error changing password: {type(e).__name__}, {e}")
+        return jsonify({'error': 'failed to change password'}), 500
+
+    finally:
+        if connection:
+            connection.close()
+
 #checked-integrated but not to ui
 @app.route('/api/announcements',methods = ['GET'])
 def view_announcments():
@@ -466,6 +505,15 @@ def toggle_induction():
     conn.commit()
     return jsonify({"success": True, "message": "Induction status updated"})
 
+
+@app.route('/api/toggle_status',methods = ["GET"])
+def fetch_toggle_status():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("select * from induction_toggle ")
+    status = cursor.fetchone()
+    return jsonify(status)
+
 #checked-integrated
 @app.route('/api/applicants',methods = ['GET'])
 def fetch_applicants():
@@ -517,7 +565,6 @@ def register_induction():
             return jsonify({"error": "Database connection error"}), 500
 
 #checked-integrated
-from flask import request, jsonify
 
 @app.route('/api/appoint_excom', methods=['POST'])
 def appoint_excom():
