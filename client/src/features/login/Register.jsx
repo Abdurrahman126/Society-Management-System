@@ -1,7 +1,7 @@
 import React from 'react'
 import { Form ,redirect} from 'react-router-dom'
 
-
+ 
 export const action = async ({ request }) => {
   const formData = new URLSearchParams(await request.formData());
   
@@ -13,7 +13,7 @@ export const action = async ({ request }) => {
   const data = await response.json();
 
   if (response.ok) {
-      throw redirect('/members')
+      // throw redirect('/members')
     return  {message:data.message}
   } else {
     console.log(data.message)
@@ -70,7 +70,7 @@ const Register = () => {
   <label className="text-xs lg:text-base text-black  mb-8">
   General
   </label>
-      <button className='bg-red-600 text-white lg:p-4 p-3 rounded-lg lg:w-[70%] w-[90%]' type="submit">Proceed</button>
+      <button className='bg-red-600 text-white lg:p-4 p-3 rounded-lg lg:w-[70%] w-[90%]' type="submit" onSubmit={action} >Proceed</button>
       </Form>
    
     </div>

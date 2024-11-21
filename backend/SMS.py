@@ -20,7 +20,7 @@ def get_connection():
             user='newuser',
             password='@Akhan25',
             # change to _decs
-            database='society_management_system_decs',
+            database='society_management_system',
             cursorclass=DictCursor
         )
         return connection
@@ -39,7 +39,7 @@ def hello():
     """Root endpoint that returns a simple hello message."""
     return jsonify({'message': 'Hello, welcome to the Society Management Portal!'})
 
-#checked
+#checked-integrated
 @app.route('/api/events/<int:event_id>', methods=['GET'])
 def get_event(event_id):
     """Fetch a single event by event_id"""
@@ -63,7 +63,7 @@ def get_event(event_id):
         if connection:
             connection.close()
 
-#checked
+#checked-integrated
 @app.route('/api/events', methods=['GET'])
 def get_events():
     """API endpoint for fetching all events."""
@@ -84,7 +84,7 @@ def get_events():
         if connection:
             connection.close()
 
-#checked
+#checked-integrated
 @app.route('/api/bookings', methods=['POST'])
 def submit_booking():
     connection = get_connection()
@@ -121,7 +121,7 @@ def submit_booking():
         if connection:
             connection.close()
 
-# updated check
+# updated check 
 @app.route('/api/login', methods=['POST'])
 def login_user():
     connection = get_connection()
@@ -234,7 +234,7 @@ def add_event():
     else:
         return jsonify({"Error": "Database connection error"}), 500
     
-#checked
+#checked-integrated
 @app.route('/api/delete_event/<int:event_id>', methods=['DELETE'])
 def delete_event(event_id):
     connection = get_connection()
@@ -299,26 +299,24 @@ def login_admin():
 @app.route('/api/abbu_admin', methods=['POST'])
 def faculty_admin():
     connection = get_connection()
-    secret_key = request.form.get('Secret Key')
+    secret_key = request.form.get('secret_key')
     email = request.form.get('email')
     password = request.form.get('password')
 
     if not all([email, password]):
             return jsonify({'error': 'All fields are required.'}), 400
+
+    admin_email = "admin@fast.com"
+    admin_password = "fast123"
+
     try:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT admin_password FROM admin  WHERE email = %s ", (email,))
-            user = cursor.fetchone()
+        if email != admin_email or password != admin_password:
+            return jsonify({'error': 'Invalid credentials.'}), 401
 
-            if user is None:
-                return jsonify({'error': 'admin not found.'}), 404
+        if app.config['SECRET_KEY'] != secret_key:
+            return jsonify({'error': 'Invalid secret key.'}), 401
 
-            stored_password = user['admin_password']
-            
-            if stored_password != password or app.config['SECRET_KEY']==secret_key :
-                return jsonify({'error': 'Invalid credentials.'}), 401
-
-            return jsonify({'message': 'Login successful'}), 200
+        return jsonify({'message': 'Login successful'}), 200
 
     except Exception as e:
         print(f"Error logging user in: {type(e).__name__}, {e}")
@@ -494,10 +492,10 @@ def delete_announcement(announcement_id):
                 connection.close()
     else:
         return jsonify({"error": "Database connection error"}), 500
-#checked
+#checked-integrated
 @app.route('/api/toggle_induction', methods=['POST'])
 def toggle_induction():
-    new_status = request.form.get('new_status') 
+    new_status = int(request.form.get('new_status'))
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -505,7 +503,7 @@ def toggle_induction():
     conn.commit()
     return jsonify({"success": True, "message": "Induction status updated"})
 
-
+#checked-integrated
 @app.route('/api/toggle_status',methods = ["GET"])
 def fetch_toggle_status():
     conn = get_connection()

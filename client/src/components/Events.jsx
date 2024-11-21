@@ -8,12 +8,12 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import Timer from './Timer'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Form} from 'react-router-dom';
 const Events = ({ name, description,id,eventOn,btnAction,tag}) => {
 
     const navigate=useNavigate();
     return (
-        <div className="mt-5 w-[95%] lg:w-[30%] flex flex-col">
+        <div className="mt-5 w-[95%] lg:w-[50%] flex flex-col">
             <Card className="border-none flex flex-col h-full bg-white bg-opacity-90">
                 <CardHeader>
                     <CardTitle>{name}</CardTitle>
@@ -24,7 +24,11 @@ const Events = ({ name, description,id,eventOn,btnAction,tag}) => {
                     <Timer eventOn={eventOn}/>
                 </CardContent>
                 <CardFooter>
-                    <button className='text-white bg-red-700 rounded-lg p-2 lg:p-3 w-full' onClick={btnAction} >{!tag?"Book Now":tag}</button>
+                    <Form method="delete" >
+                    
+                    <input type="hidden" name="id" value={id}></input>
+                    <button className='text-white bg-red-700 rounded-lg p-2 lg:p-3 w-full'  type="submit" name="intent" value="delete">{!tag?"Book Now":tag}</button>
+                    </Form>
                 </CardFooter>
             </Card>
         </div>

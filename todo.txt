@@ -1,10 +1,13 @@
 delete events 
+meeting 
+signin for admin
+forum 
+attendance
 
-manage admin 
 
 
 
-
+manage admin DONEE
 add events DONEEEE
 inductions into databse DONEEE
 add announcemnets DONEE

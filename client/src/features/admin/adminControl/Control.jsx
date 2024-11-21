@@ -49,7 +49,7 @@ export async function loader()
   return (
     <div className='bg-white'>
        <Table>
-          <TableCaption>A list of the current inductions.</TableCaption>
+          <TableCaption>List of Excom members</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">Name</TableHead>

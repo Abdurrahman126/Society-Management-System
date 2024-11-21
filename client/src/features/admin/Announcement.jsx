@@ -1,9 +1,8 @@
 import React from 'react'
-import { Form } from 'react-router-dom'
+import { Form, useLoaderData } from 'react-router-dom'
 
 export  async function loader(){
 
-  const eventId = params.id;
   try {
       const response = await fetch(`http://127.0.0.1:5001/announcements`);
       if (!response.ok) {
@@ -38,6 +37,9 @@ export const action = async ({ request }) => {
   
 
 const Announcement = () => {
+
+  const annoouncements=useLoaderData();
+
   return (
     <div>
         <h1 className='text-white'>Announcemnt List:</h1>

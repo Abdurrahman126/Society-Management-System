@@ -1,8 +1,8 @@
+
 import React, { useEffect } from 'react'
 //this is redundant we will delete it later
 import Events from '@/components/Events';
 import { useLoaderData,Form } from 'react-router-dom';
-import { useDispatch ,useSelector} from 'react-redux';
 import { FaPlus, } from "react-icons/fa";
 import {
   Card,
@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { eventDeleted, eventsFetched ,selectEvents} from '../event/eventSlice';
 
 export async function loader()
 {
@@ -45,36 +44,50 @@ export async function loader()
 }
 export const action = async ({ request }) => {
   const formData = new URLSearchParams(await request.formData());
+  const intent=formData.get("intent")
+ 
+  if(intent==="post"){
+    const response = await fetch('http://127.0.0.1:5001/api/add_event', {
+      method: 'POST',
+      body: formData,
+    });
+    const postdata = await response.json();
   
-  const response = await fetch('http://127.0.0.1:5001/api/add_event', {
-    method: 'POST',
-    body: formData,
-  });
-
-  const data = await response.json();
-
-  if (response.ok) {
-    return  {message:data.message}
-  } else {
-    console.log(data.message)
-    return { error: data.error }
+    if (response.ok) {
+      return  {message:postdata.message}
+    } else {
+      console.log(postdata.message)
+      return { error: postdata.error }
+    }
   }
+  else if(intent==="delete"){
+    const id=formData.get('id');
+    const response = await fetch(`http://127.0.0.1:5001/api/delete_event/${id}`, {
+      method: 'delete',
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      return  {message:data.message}
+  
+
+     } else {
+      console.log(data.message)
+      return { error: data.error }
+    }
+    
+  }
+  
 };
 
 const EventsHandler = () => {
 
   const array=useLoaderData();
-  const dispatch=useDispatch();
-  useEffect(()=>{
-    dispatch(eventsFetched(array));
-  
-  },[array])
-  const state=useSelector(selectEvents)
-  console.log(state);
-  const events=state.map((item)=>{
+  const events=array.map((item)=>{
     return(
     <Events key={item.event_id} id={item.event_id} name={item.event_title}
-    description={item.about_event} eventOn={item.event_date} btnAction={()=>{dispatch(eventDeleted(item.event_id))}} tag="Delete Event"/>
+    description={item.about_event} eventOn={item.event_date}  tag="Delete Event"/>
     )
 })
 
@@ -114,7 +127,7 @@ const EventsHandler = () => {
           
           <input name="event_date" type="date" className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'/>
           <DialogClose asChild>
-          <Button type="submit">Save changes</Button>
+          <Button type="submit" name="intent" value="post">Save changes</Button>
           </DialogClose>
           </Form>
           
@@ -132,3 +145,5 @@ const EventsHandler = () => {
 }
 
 export default EventsHandler
+
+
