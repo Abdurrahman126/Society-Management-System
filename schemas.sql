@@ -89,11 +89,15 @@ CREATE TABLE admin (
     FOREIGN KEY (roll_number) REFERENCES excom(roll_number)
 );
 
+
 -- Table for meetings
 CREATE TABLE meetings (
     meeting_id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    purpose TEXT NOT NULL
+    purpose TEXT NOT NULL,
+    venue varchar(100) not null,
+    meeting_date date not null
+    
 );
 
 -- Table for attendance records
