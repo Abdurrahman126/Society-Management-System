@@ -13,14 +13,13 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 def get_connection():
-    """Establishes a database connection."""
     try:
         connection = pymysql.connect(
             host='localhost',
             user='newuser',
             password='@Akhan25',
             # change to _decs
-            database='society_management_system',
+            database='society_management_system_decs',
             cursorclass=DictCursor
         )
         return connection
@@ -34,12 +33,7 @@ def handle_exception(e):
     response = json.dumps({'error': str(e)})
     return Response(response, mimetype='application/json', status=500)
 
-@app.route('/', methods=['GET'])
-def hello():
-    """Root endpoint that returns a simple hello message."""
-    return jsonify({'message': 'Hello, welcome to the Society Management Portal!'})
-
-#checked-integrated
+#checked
 @app.route('/api/events/<int:event_id>', methods=['GET'])
 def get_event(event_id):
     """Fetch a single event by event_id"""
@@ -50,8 +44,8 @@ def get_event(event_id):
     try:
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT event_id, event_title, about_event, event_date,booking_price
-                FROM society_events WHERE event_id = %s
+                select event_id, event_title, about_event, event_date,booking_price
+                from society_events where event_id = %s
             """, (event_id,))
             event = cursor.fetchone()
             if not event:
@@ -63,7 +57,7 @@ def get_event(event_id):
         if connection:
             connection.close()
 
-#checked-integrated
+#checked
 @app.route('/api/events', methods=['GET'])
 def get_events():
     """API endpoint for fetching all events."""
@@ -74,7 +68,7 @@ def get_events():
 
     try:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT event_id, event_title, about_event, event_date FROM society_events")
+            cursor.execute("select event_id, event_title, about_event, event_date from society_events")
             events = cursor.fetchall()
             return jsonify(events)
     except Exception as e:
@@ -84,7 +78,7 @@ def get_events():
         if connection:
             connection.close()
 
-#checked-integrated
+#checked
 @app.route('/api/bookings', methods=['POST'])
 def submit_booking():
     connection = get_connection()
@@ -121,7 +115,7 @@ def submit_booking():
         if connection:
             connection.close()
 
-# updated check 
+# updated check
 @app.route('/api/login', methods=['POST'])
 def login_user():
     connection = get_connection()
@@ -134,7 +128,7 @@ def login_user():
             return jsonify({'error': 'All fields are required.'}), 400
 
         with connection.cursor() as cursor:
-            cursor.execute("SELECT pwd AS password FROM members WHERE roll_number = %s UNION SELECT password FROM excom WHERE roll_number = %s", (Rollno, Rollno))
+            cursor.execute("select pwd from members where roll_number = %s union select password from excom where roll_number = %s", (Rollno, Rollno))
             user = cursor.fetchone()
 
             if user is None:
@@ -198,6 +192,7 @@ def register():
             cursor.close()
         if connection:
             connection.close()
+
 #checked-integrated
 @app.route('/api/add_event', methods=['POST'])
 def add_event():
@@ -234,7 +229,7 @@ def add_event():
     else:
         return jsonify({"Error": "Database connection error"}), 500
     
-#checked-integrated
+#checked
 @app.route('/api/delete_event/<int:event_id>', methods=['DELETE'])
 def delete_event(event_id):
     connection = get_connection()
@@ -299,24 +294,26 @@ def login_admin():
 @app.route('/api/abbu_admin', methods=['POST'])
 def faculty_admin():
     connection = get_connection()
-    secret_key = request.form.get('secret_key')
+    secret_key = request.form.get('Secret Key')
     email = request.form.get('email')
     password = request.form.get('password')
 
     if not all([email, password]):
             return jsonify({'error': 'All fields are required.'}), 400
-
-    admin_email = "admin@fast.com"
-    admin_password = "fast123"
-
     try:
-        if email != admin_email or password != admin_password:
-            return jsonify({'error': 'Invalid credentials.'}), 401
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT admin_password FROM admin  WHERE email = %s ", (email,))
+            user = cursor.fetchone()
 
-        if app.config['SECRET_KEY'] != secret_key:
-            return jsonify({'error': 'Invalid secret key.'}), 401
+            if user is None:
+                return jsonify({'error': 'admin not found.'}), 404
 
-        return jsonify({'message': 'Login successful'}), 200
+            stored_password = user['admin_password']
+            
+            if stored_password != password or app.config['SECRET_KEY']==secret_key :
+                return jsonify({'error': 'Invalid credentials.'}), 401
+
+            return jsonify({'message': 'Login successful'}), 200
 
     except Exception as e:
         print(f"Error logging user in: {type(e).__name__}, {e}")
@@ -350,7 +347,7 @@ def fetch_excom():
 #checked-integrated
 @app.route('/api/add_admin', methods=['POST'])
 def add_admin():
-    data = request.get_json()  # This is how you get JSON data from the body
+    data = request.get_json()  
     rollno = data.get('rollno')
     password = data.get('password')
 
@@ -359,18 +356,18 @@ def add_admin():
     if connection:
         try:
             with connection.cursor() as cursor:
-                print(f"Checking existence for Rollno: {rollno}")  # Debug log
+                print(f"Checking existence for Rollno: {rollno}") 
                 cursor.execute("SELECT * FROM excom WHERE roll_number = %s", (rollno,))
                 admin = cursor.fetchone()
 
                 if admin:
-                    print(f"Found Excom: {admin}")  # Debug log
+                    print(f"Found Excom: {admin}") 
                     cursor.execute("INSERT INTO admin (roll_number, email, admin_password) VALUES (%s, %s, %s)",
                                    (admin['roll_number'], admin['email'], password))
                     connection.commit()
                     return jsonify({"success": True, "message": "Successfully appointed as Admin."})
                 else:
-                    print(f"No Excom found for Rollno: {rollno}")  # Debug log
+                    print(f"No Excom found for Rollno: {rollno}") 
                     return jsonify({"success": False, "message": "No such Excom found."}), 404
         except pymysql.MySQLError as err:
                 print("MySQL Error:", err)
@@ -380,6 +377,7 @@ def add_admin():
     else:
         return jsonify({"error": "Database connection error"}), 500
 
+#checked
 @app.route('/api/change_password', methods=['POST'])
 def change_password():
     connection = get_connection()
@@ -439,6 +437,8 @@ def view_announcments():
         
     else:
         return jsonify({"error": "Database connection error"}), 500
+
+
 #checked-integrated
 @app.route('/api/add_announcements', methods=['POST'])
 def add_announcements():
@@ -492,10 +492,10 @@ def delete_announcement(announcement_id):
                 connection.close()
     else:
         return jsonify({"error": "Database connection error"}), 500
-#checked-integrated
+#checked
 @app.route('/api/toggle_induction', methods=['POST'])
 def toggle_induction():
-    new_status = int(request.form.get('new_status'))
+    new_status = request.form.get('new_status') 
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -503,7 +503,7 @@ def toggle_induction():
     conn.commit()
     return jsonify({"success": True, "message": "Induction status updated"})
 
-#checked-integrated
+#checked
 @app.route('/api/toggle_status',methods = ["GET"])
 def fetch_toggle_status():
     conn = get_connection()
@@ -563,7 +563,6 @@ def register_induction():
             return jsonify({"error": "Database connection error"}), 500
 
 #checked-integrated
-
 @app.route('/api/appoint_excom', methods=['POST'])
 def appoint_excom():
     data = request.get_json()  # Parse JSON from the request body
@@ -607,6 +606,146 @@ def appoint_excom():
             connection.close()
     else:
         return jsonify({"error": "Database connection error"}), 500
+
+@app.route('/api/add_meeting',methods=['POST'])
+def add_meeting():
+    title = request.form.get('meeting title')
+    purpose = request.form.get('Purpose')
+    venue = request.form.get('venue')
+    meeting_date = request.form.get('Date')
+
+    connection = get_connection()
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("insert into meetings (title,purpose,venue,meeting_date) values (%s,%s,%s,%s)",(title,purpose,venue,meeting_date))
+                connection.commit()
+            return jsonify({"success": True, "message": "Meeting created successfully."})
+        
+        except pymysql.MySQLError as err:
+            print("MySQL Error:", err)
+            return jsonify({"error": f"Error while appointing member: {str(err)}"}), 500
+        finally:
+            connection.close()
+    else:
+        return jsonify({"error": "Database connection error"}), 500
+
+
+@app.route('/api/delete_meeting/<int:meeting_id>',methods=['GET'])
+def delete_meeting(meeting_id):
+    connection = get_connection()
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+               cursor.execute("DELETE FROM meetings WHERE meeting_id = %s", (meeting_id,))
+               affected_rows = cursor.rowcount
+               connection.commit()
+
+            if affected_rows == 0:
+                return jsonify({"error": "meeting not found"}), 404
+            else:
+                    return jsonify({"message": "meeting deleted successfully"}), 200
+
+        except pymysql.MySQLError as err:
+            print("MySQL Error:", err)
+            return jsonify({"error": f"Error while deleting meeting: {str(err)}"}), 500
+
+        finally:
+            if connection:
+                connection.close()
+    else:
+        return jsonify({"error": "Database connection error"}), 500
+    
+@app.route('/api/fetch_members', methods=['GET'])
+def fetch_members():
+    connection = get_connection()
+    if not connection:
+        return jsonify({"error": "Database connection error"}), 500
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT roll_number, name FROM members")
+            members = cursor.fetchall()
+        return jsonify(members), 200
+
+    except Exception as e:
+        print(f"Error fetching members: {e}")
+        return jsonify({"error": "Failed to fetch members"}), 500
+
+    finally:
+        if connection:
+            connection.close()
+
+
+@app.route('/api/add_attendance', methods=['POST'])
+def add_attendance():
+    connection = get_connection() 
+    if not connection:
+        return jsonify({"error": "Database connection error"}), 500
+
+    data = request.get_json() 
+    meeting_id = data.get('meeting_id')
+    attendance_data = data.get('attendance') 
+
+    if not meeting_id or not attendance_data:
+        return jsonify({"error": "Missing data for meeting_id, member_id, or attendance status"}), 400
+
+    try:
+        with connection.cursor() as cursor:
+            for member_id, status in attendance_data.items():
+              
+                if member_id is None or status is None:
+                    continue  
+
+                cursor.execute("""
+                    INSERT INTO attendance (meeting_id, member_id, attendance)
+                    VALUES (%s, %s, %s)
+                    ON DUPLICATE KEY UPDATE attendance = VALUES(attendance)
+                """, (meeting_id, member_id, status))
+
+            connection.commit()
+        return jsonify({"message": "Attendance updated successfully"}), 200
+
+    except Exception as e:
+        print(f"Error in adding/updating attendance: {e}")
+        return jsonify({"error": "Failed to add/update attendance"}), 500
+
+    finally:
+        if connection:
+            connection.close()
+
+@app.route('/api/fetch_attendance/<int:meeting_id>', methods=['GET'])
+def fetch_attendance(meeting_id):
+    connection = get_connection()
+    if not connection:
+        return jsonify({"error": "Database connection error"}), 500
+
+    try:
+        with connection.cursor() as cursor:
+         
+            cursor.execute("""
+                SELECT a.member_id, m.name, a.attendance
+                FROM attendance a
+                JOIN members m ON m.roll_number = a.member_id 
+                WHERE a.meeting_id = %s
+            """, (meeting_id,))
+            records = cursor.fetchall()
+
+            if not records:
+                return jsonify({"error": "No attendance records found for the specified meeting"}), 404
+
+            return jsonify({"meeting_id": meeting_id, "attendance_records": records}), 200
+
+    except Exception as e:
+        print(f"Error fetching attendance records: {e}")
+        return jsonify({"error": "Failed to fetch attendance records"}), 500
+
+    finally:
+        if connection:
+            connection.close()
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
