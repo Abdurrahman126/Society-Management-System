@@ -19,7 +19,7 @@ def get_connection():
             user='newuser',
             password='@Akhan25',
             # change to _decs
-            database='society_management_system',
+            database='society_management_system_decs',
             cursorclass=DictCursor
         )
         return connection
@@ -752,7 +752,59 @@ def fetch_attendance(meeting_id):
             connection.close()
 
 
+@app.route('/api/add_post', methods=['POST'])
+def add_post():
+    data = request.get_json()
+    email = data['email']
+    content = data['content']
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+           
+            cursor.execute("INSERT INTO forum (content,email) VALUES (%s, %s)", (content,email))
+            conn.commit()
+            feedback_id = cursor.lastrowid
+        return jsonify({"message": "Post added successfully", "feedback_id": feedback_id}), 201
+    finally:
+        conn.close()
 
+@app.route('/api/like_post/<int:feedback_id>', methods=['POST'])
+def like_post(feedback_id):
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("UPDATE forum SET likes = likes + 1 WHERE feedback_id = %s",(feedback_id,))
+            connection.commit()
+        if cursor.rowcount == 0:
+            return jsonify({"message": "Post not found"}), 404
+        return jsonify({"message": "Post liked successfully"})
+    finally:
+        connection.close()
+
+@app.route('/api/delete_post/<int:feedback_id>', methods=['DELETE'])
+def delete_post(feedback_id):
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute( "DELETE FROM forum WHERE feedback_id = %s", (feedback_id,))
+            connection.commit()
+        if cursor.rowcount == 0:
+            return jsonify({"message": "Post not found"}), 404
+        return jsonify({"message": "Post deleted successfully"})
+    finally:
+        connection.close()
+
+
+@app.route('/api/get_posts', methods=['GET'])
+def get_latest_posts():
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT * FROM forum ORDER BY feedback_id DESC LIMIT 10")
+            result = cursor.fetchall() 
+            return jsonify(result)
+    finally:
+        conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)

@@ -34,8 +34,10 @@ CREATE TABLE forum (
     feedback_id INT AUTO_INCREMENT PRIMARY KEY,
     content TEXT NOT NULL,
     email VARCHAR(100) NOT NULL,
+    likes INT DEFAULT 0,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 
 -- Table for inductions
 CREATE TABLE inductions (
