@@ -19,7 +19,7 @@ def get_connection():
             user='newuser',
             password='@Akhan25',
             # change to _decs
-            database='society_management_system_decs',
+            database='society_management_system',
             cursorclass=DictCursor
         )
         return connection
@@ -357,6 +357,35 @@ def add_admin():
                 return jsonify({"error": f"Error while appointing Admin: {str(err)}"}), 500
         finally:
                 connection.close()
+    else:
+        return jsonify({"error": "Database connection error"}), 500
+
+@app.route('/api/remove_admin', methods=['DELETE'])
+def remove_admin():
+    data = request.get_json()
+    rollno = data.get('rollno')
+
+    connection = get_connection()
+
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT * FROM admin WHERE roll_number = %s", (rollno,))
+                admin = cursor.fetchone()
+
+                if admin:
+                    cursor.execute("DELETE FROM admin WHERE roll_number = %s", (rollno,))
+                    connection.commit()
+                    print(f"Admin with Rollno: {rollno} has been deleted.")
+                    return jsonify({"success": True, "message": f"Admin with Rollno: {rollno} has been successfully deleted."})
+                else:
+                    print(f"No Admin found for Rollno: {rollno}")
+                    return jsonify({"success": False, "message": "No such Admin found."}), 404
+        except pymysql.MySQLError as err:
+            print("MySQL Error:", err)
+            return jsonify({"error": f"Error while deleting Admin: {str(err)}"}), 500
+        finally:
+            connection.close()
     else:
         return jsonify({"error": "Database connection error"}), 500
 
@@ -805,6 +834,37 @@ def get_latest_posts():
             return jsonify(result)
     finally:
         conn.close()
+
+
+@app.route('/api/reset_database', methods=['POST'])
+def reset_database():
+    connection = get_connection()
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+              
+                connection.begin()
+              
+                cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'society_management_system_decs' AND table_type = 'BASE TABLE'")
+                tables = cursor.fetchall()
+              
+                cursor.execute("SET FOREIGN_KEY_CHECKS=0;")
+                for table in tables:
+                    table_name = table['TABLE_NAME']
+                    print(f"Truncating {table_name}")
+                    cursor.execute(f"TRUNCATE TABLE {table_name};")
+               
+                cursor.execute("SET FOREIGN_KEY_CHECKS=1;")
+                connection.commit()
+                return jsonify({"success": True, "message": "All tables have been truncated."})
+        except pymysql.MySQLError as err:
+            print("MySQL Error:", err)
+            connection.rollback()
+            return jsonify({"error": f"Error while resetting database: {str(err)}"}), 500
+        finally:
+            connection.close()
+    else:
+        return jsonify({"error": "Database connection error"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
