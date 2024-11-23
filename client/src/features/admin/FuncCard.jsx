@@ -25,6 +25,9 @@ import { TfiAnnouncement } from "react-icons/tfi";
 import { RiTeamFill } from "react-icons/ri";
 import { SiGooglemeet } from "react-icons/si";
 import { useNavigate } from 'react-router-dom'
+import { TbCirclePercentageFilled } from "react-icons/tb";
+
+
 
 const FuncCard = ({redirectTo,icon,heading}) => {
     const navigate=useNavigate();
@@ -54,6 +57,11 @@ const FuncCard = ({redirectTo,icon,heading}) => {
            return(
             <SiGooglemeet className='text-red-600 text-5xl '/>
            )
+        }
+        else if(compIcon==="percent"){
+            return(
+                <TbCirclePercentageFilled className='text-red-600 text-5xl '/>
+            )
         }
     }
 

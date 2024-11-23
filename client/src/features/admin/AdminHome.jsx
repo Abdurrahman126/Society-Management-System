@@ -27,6 +27,29 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import FuncCard from './FuncCard';
+
+
+
+export const action = async ({ request }) => {
+  const formData = new URLSearchParams(await request.formData());
+  
+  // Send data to your backend API
+  const response = await fetch('http://127.0.0.1:5001/api/change_password', {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = await response.json();
+
+  if (response.ok) {
+    return  {message:data.message}
+  } else {
+    return { error: data.error }
+  }
+};
+
+
+
 const AdminHome = () => {
     ///this page woudl contain all the functions the admin can perform 
     const navigate=useNavigate();
@@ -37,10 +60,11 @@ const AdminHome = () => {
           
           <FuncCard redirectTo={"/admin/control"} icon="MdPeople" heading="Admin Control"/>
           
-          <FuncCard redirectTo={"/admin/announce"} icon="TfiAnnouncement" heading="Manage Events"/>
+          <FuncCard redirectTo={"/admin/announce"} icon="TfiAnnouncement" heading="Manage Announcements"/>
           
           <FuncCard redirectTo={"/admin/inductions"} icon="RiTeamFill" heading="Inductions"/>
           <FuncCard redirectTo={"/admin/meeting"} icon="SiGooglemeet" heading="Meetings"/>
+          <FuncCard redirectTo={"/admin/attendance"} icon="percent" heading="Attendance"/>
        
 
 

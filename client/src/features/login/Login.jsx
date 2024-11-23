@@ -13,7 +13,8 @@ export const action = async ({ request }) => {
   const data = await response.json();
 
   if (response.ok) {
-      throw redirect('/members')
+    console.log("HELLO",formData.get('password'))
+      throw redirect('/members',{ state: { password: formData.get('password') } })
     return  {message:data.message}
   } else {
     return { error: data.error }
@@ -23,6 +24,7 @@ export const action = async ({ request }) => {
 const Login = () => {
 
   const navigate=useNavigate();
+  
   return (
     <div className='h-dvh w-full flex justify-center items-center'>
         <div className='bg-white lg:w-[35%] w-[80%] h-[60%] rounded-2xl flex flex-col items-center justify-evenly animate-open'> 
