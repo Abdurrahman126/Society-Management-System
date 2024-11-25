@@ -1,14 +1,16 @@
-delete events 
-meeting 
-signin for admin
-forum 
-attendance
+(backend)
+//track attendance route needed(on a given email the attendance record)
+adding a new field flag to meetings table if it is true means meeting still scheduled
+if 0 then meeting has passed
+(frontend)
+form validation for all forms in project
+possiblly removing excom member functionality(could cuase errors since an excom 
+member ccould be an admin)
+restrict access for excom admin in AdminHome
+***attendance based on meeting id*** 
+meeting/events to end if date has passed (meetign shpuld not delete from databse
+just not displayed)
+announcements to be added on home page
+think of how to add link to the announcements
 
-
-
-
-manage admin DONEE
-add events DONEEEE
-inductions into databse DONEEE
-add announcemnets DONEE
-
+attendance and meetings nav to be added in member home(DONEE)

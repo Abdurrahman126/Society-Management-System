@@ -1,10 +1,12 @@
 import React from 'react'
-import { useNavigate ,Form,redirect} from 'react-router-dom'
-
+import { useDispatch } from 'react-redux';
+import { useNavigate ,Form,redirect, useActionData} from 'react-router-dom'
+import { loggedIn } from './loginSlice';
 
 export const action = async ({ request }) => {
   const formData = new URLSearchParams(await request.formData());
-  
+  const roll=formData.get('rollno');
+  const pass=formData.get('password');
   const response = await fetch('http://127.0.0.1:5001/api/login', {
     method: 'POST',
     body: formData,
@@ -13,9 +15,8 @@ export const action = async ({ request }) => {
   const data = await response.json();
 
   if (response.ok) {
+    return {roll_no:roll,password:pass,success:"true"};
     console.log("HELLO",formData.get('password'))
-      throw redirect('/members',{ state: { password: formData.get('password') } })
-    return  {message:data.message}
   } else {
     return { error: data.error }
   }
@@ -24,7 +25,15 @@ export const action = async ({ request }) => {
 const Login = () => {
 
   const navigate=useNavigate();
+  const actionData=useActionData();
+  console.log(actionData)
+  const dispatch=useDispatch()
+  if (actionData?.success) {
+    dispatch(loggedIn({ roll: actionData.roll_no, pass: actionData.password }));
+    navigate('/members');
+  }
   
+
   return (
     <div className='h-dvh w-full flex justify-center items-center'>
         <div className='bg-white lg:w-[35%] w-[80%] h-[60%] rounded-2xl flex flex-col items-center justify-evenly animate-open'> 

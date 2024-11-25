@@ -26,6 +26,7 @@ import { RiTeamFill } from "react-icons/ri";
 import { SiGooglemeet } from "react-icons/si";
 import { useNavigate } from 'react-router-dom'
 import { TbCirclePercentageFilled } from "react-icons/tb";
+import { GoCommentDiscussion } from "react-icons/go";
 
 
 
@@ -61,6 +62,11 @@ const FuncCard = ({redirectTo,icon,heading}) => {
         else if(compIcon==="percent"){
             return(
                 <TbCirclePercentageFilled className='text-red-600 text-5xl '/>
+            )
+        }
+        else if(compIcon==="discussion"){
+            return(
+                <GoCommentDiscussion className='text-red-600 text-5xl '/>
             )
         }
     }

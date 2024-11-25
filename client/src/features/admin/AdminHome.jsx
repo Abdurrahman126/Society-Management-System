@@ -65,6 +65,7 @@ const AdminHome = () => {
           <FuncCard redirectTo={"/admin/inductions"} icon="RiTeamFill" heading="Inductions"/>
           <FuncCard redirectTo={"/admin/meeting"} icon="SiGooglemeet" heading="Meetings"/>
           <FuncCard redirectTo={"/admin/attendance"} icon="percent" heading="Attendance"/>
+          <FuncCard redirectTo={"/admin/manageForum"} icon="discussion" heading="Forum"/>
        
 
 

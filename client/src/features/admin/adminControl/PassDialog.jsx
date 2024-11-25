@@ -1,7 +1,4 @@
-
-
-
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,73 +7,46 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Form } from "react-router-dom";
 
-import React,{useRef} from 'react'
-
-const PassDialog = ({rollno}) => {
-
-    const passwordRef = useRef(null);
-    const addAsAdmin = async (rollno,password) => {
-        try {
-          const response = await fetch("http://127.0.0.1:5001/api/add_admin", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ rollno:rollno,password:password }),
-          });
-    
-          if (response.ok) {
-            const data = await response.json();
-            alert(data.message); // Handle success
-          } else {
-            const errorData = await response.json();
-            alert(errorData.message); // Handle error
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          alert("An error occurred while updating the admin.");
-        }
-      };
-
-      const handleSubmit = () => {
-        const password = passwordRef.current.value; 
-        addAsAdmin(rollno, password); 
-    };
-    
-
-    return (
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">Add as Admin</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Enter Admin Password</DialogTitle>
-              <DialogDescription>
-               Password shall be sent using email(maybe)
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="password" className="text-right">
-                  Password
-                </Label>
-                <Input id="password" className="col-span-3" ref={passwordRef}/>
-              </div>
+const PassDialog = ({ rollno, isAdmin }) => {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" disabled={isAdmin}>
+          {isAdmin ? "Added!" : "Add as Admin"}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Enter Admin Password</DialogTitle>
+          <DialogDescription>
+            Password shall be sent using email (maybe).
+          </DialogDescription>
+        </DialogHeader>
+        <Form method="post">
+          <input type="hidden" name="rollno" value={rollno} />
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="password" className="text-right">
+                Password
+              </Label>
+              <Input id="password" name="password" className="col-span-3" />
             </div>
-            <DialogFooter>
+          </div>
+          <DialogFooter>
             <DialogClose asChild>
-              <Button type="submit" onClick={handleSubmit}>Save changes</Button>
-           </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )
-}
+              <Button type="submit" name="intent" value="add">Save changes</Button>
+            </DialogClose>
+          </DialogFooter>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
-export default PassDialog
+export default PassDialog;

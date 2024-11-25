@@ -327,6 +327,27 @@ def fetch_excom():
     else:
         return jsonify({"error": "Database connection error"}), 500
 
+
+@app.route('/api/fetch_admin',methods =["GET"])
+def fetch_admin():
+    connection = get_connection()
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT roll_number,email FROM admin")
+                admin = cursor.fetchall()
+            return jsonify(admin)
+        
+        except pymysql.MySQLError as err:
+            print("MySQL Error:", err)
+            return jsonify({"error": f"Error while fetching admin: {str(err)}"}), 500
+        finally:
+            if connection:
+                connection.close()
+        
+    else:
+        return jsonify({"error": "Database connection error"}), 500
+
 #checked-integrated
 @app.route('/api/add_admin', methods=['POST'])
 def add_admin():
@@ -390,16 +411,16 @@ def remove_admin():
         return jsonify({"error": "Database connection error"}), 500
 
 #checked
-@app.route('/api/change_password', methods=['POST'])
+@app.route('/api/change_password_admin', methods=['POST'])
 def change_password():
     connection = get_connection()
     if not connection:
         return jsonify({"error": "database connection error"}), 500
 
     try:
-        roll_number = request.form.get('Roll number')
-        current_password = request.form.get('Current password')
-        new_password = request.form.get('New password')
+        roll_number = request.form.get('roll_number')
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
 
         if not all([roll_number, current_password, new_password]):
             return jsonify({'error': 'All fields are required.'}), 400
@@ -618,6 +639,47 @@ def appoint_excom():
             connection.close()
     else:
         return jsonify({"error": "Database connection error"}), 500
+    
+#integrated
+@app.route('/api/change_password_excom', methods=['POST'])
+def change_password_excom():
+    connection = get_connection()
+    if not connection:
+        return jsonify({"error": "database connection error"}), 500
+
+    try:
+        roll_number = request.form.get('roll_number')
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+
+        if not all([roll_number, current_password, new_password]):
+            return jsonify({'error': 'All fields are required.'}), 400
+
+        with connection.cursor() as cursor:
+           
+            cursor.execute("select password from excom where roll_number = %s", (roll_number,))
+            excom = cursor.fetchone()
+
+            if excom is None:
+                return jsonify({'error': 'Member not found.'}), 404
+
+            if excom['password']!=current_password:
+                return jsonify({'error': 'Current password is incorrect.'}), 401
+
+            
+            cursor.execute("update excom set password = %s where roll_number = %s", (new_password, roll_number))
+            connection.commit()
+
+            return jsonify({'message': 'Password updated successfully.'}), 200
+
+    except Exception as e:
+        print(f"Error changing password: {type(e).__name__}, {e}")
+        return jsonify({'error': 'failed to change password'}), 500
+
+    finally:
+        if connection:
+            connection.close()
+
 #integrated
 @app.route('/api/add_meeting',methods=['POST'])
 def add_meeting():
@@ -780,6 +842,7 @@ def fetch_attendance(meeting_id):
         if connection:
             connection.close()
 
+#integrated
 
 @app.route('/api/add_post', methods=['POST'])
 def add_post():
@@ -793,23 +856,31 @@ def add_post():
             cursor.execute("INSERT INTO forum (content,email) VALUES (%s, %s)", (content,email))
             conn.commit()
             feedback_id = cursor.lastrowid
+            print(feedback_id)
         return jsonify({"message": "Post added successfully", "feedback_id": feedback_id}), 201
     finally:
         conn.close()
-
+#integrated
 @app.route('/api/like_post/<int:feedback_id>', methods=['POST'])
 def like_post(feedback_id):
     connection = get_connection()
     try:
         with connection.cursor() as cursor:
-            cursor.execute("UPDATE forum SET likes = likes + 1 WHERE feedback_id = %s",(feedback_id,))
+            cursor.execute("UPDATE forum SET likes = likes + 1 WHERE feedback_id = %s", (feedback_id,))
             connection.commit()
-        if cursor.rowcount == 0:
-            return jsonify({"message": "Post not found"}), 404
-        return jsonify({"message": "Post liked successfully"})
+
+            if cursor.rowcount == 0:
+                return jsonify({"message": "Post not found"}), 404
+            
+            cursor.execute("SELECT likes FROM forum WHERE feedback_id = %s", (feedback_id,))
+            updated_likes = cursor.fetchone()
+
+            if updated_likes:
+                return jsonify({"message": "Post liked successfully", "likes": updated_likes})
+
     finally:
         connection.close()
-
+#integrated
 @app.route('/api/delete_post/<int:feedback_id>', methods=['DELETE'])
 def delete_post(feedback_id):
     connection = get_connection()
@@ -823,13 +894,13 @@ def delete_post(feedback_id):
     finally:
         connection.close()
 
-
+#integrated
 @app.route('/api/get_posts', methods=['GET'])
 def get_latest_posts():
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM forum ORDER BY feedback_id DESC LIMIT 10")
+            cursor.execute("SELECT feedback_id, email, content, likes, timestamp FROM forum ORDER BY feedback_id DESC LIMIT 10")
             result = cursor.fetchall() 
             return jsonify(result)
     finally:
