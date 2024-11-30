@@ -6,11 +6,13 @@ if 0 then meeting has passed
 form validation for all forms in project
 possiblly removing excom member functionality(could cuase errors since an excom 
 member ccould be an admin)
-restrict access for excom admin in AdminHome
-***attendance based on meeting id*** 
 meeting/events to end if date has passed (meetign shpuld not delete from databse
 just not displayed)
 announcements to be added on home page
 think of how to add link to the announcements
 
+
+
+restrict access for excom admin in AdminHome(DONEE)
+***attendance based on meeting id*** (DONE)
 attendance and meetings nav to be added in member home(DONEE)

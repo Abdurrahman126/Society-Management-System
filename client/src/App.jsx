@@ -8,21 +8,21 @@ import EventPage,{loader as eventLoader} from './features/event/EventPage';
 import Booking,{loader as bookingLoader,action as bookingAction} from './features/event/Booking';
 import Register,{action as registerAction} from './features/login/Register';
 import MemberHome,{action as memberHomeAction} from './features/home/memberHome/MemberHome';
-import AdminHome from './features/admin/AdminHome';
+import AdminHome,{loader as adminHomeLoader} from './features/admin/AdminHome';
 import EventsHandler,{action as eventHandlerAction} from './features/admin/event/EventsHandler';
 import Nav from './features/admin/Nav';
 import Announcement ,{action as announcementAction,loader as announcementLoader}from './features/admin/Announcement';
 import Inductions,{loader as inductionsLoader,action as toggleAction} from './features/admin/inductions/Inductions';
-import Team ,{action as teamAction} from './features/team/Team';
+import Team ,{action as teamAction,loader as teamLoader} from './features/team/Team';
 import Control,{loader as controlLoader,action as controlAction} from './features/admin/adminControl/Control';
 import Meeting,{action as meetingAction,loader as meetingLoader} from './features/admin/meeting/Meeting';
-import AdminLogin,{action as adminLoginAction} from './features/admin/AdminLogin';
+import AdminLogin from './features/admin/AdminLogin';
 import Attendance ,{loader as attendanceLoader} from './features/admin/attendance/Attendance';
 import Forum,{loader as forumLoader}  from './features/forum/Forum';
 import ForumControl ,{loader as forumControlLoader}from './features/admin/forumControl/ForumControl';
-import MemberNav from './features/home/memberHome/MemberNav';
-import MemberAttendance from './features/home/memberHome/MemberAttendance';
-import MemberMeetings from './features/home/memberHome/MemberMeetings';
+import MemberNav,{loader as memberNavLoader} from './features/home/memberHome/MemberNav';
+import MemberAttendance,{loader as memberAttendanceLoader} from './features/home/memberHome/MemberAttendance';
+import MemberMeetings,{loader as memberMeetingLoader} from './features/home/memberHome/MemberMeetings';
 import Queries from './features/home/memberHome/Queries';
 
 const router=createBrowserRouter(createRoutesFromElements(
@@ -35,21 +35,21 @@ const router=createBrowserRouter(createRoutesFromElements(
     <Route path="register" element={<Register/>} action={registerAction}/>
   </Route>
   <Route path="/events/:id" element={<Booking/>} loader={bookingLoader} action={bookingAction}/>
-  <Route path="/members" element={<MemberNav/>} >
+  <Route path="/members" element={<MemberNav/>} loader={memberNavLoader}>
    <Route index element={<MemberHome/>}  />
-   <Route path="attendance" element={<MemberAttendance/>}  />
-   <Route path="meetings" element={<MemberMeetings/>}  />
+   <Route path="attendance/:roll_number" element={<MemberAttendance/>} loader={memberAttendanceLoader} />
+   <Route path="meetings" element={<MemberMeetings/>}  loader={memberMeetingLoader}/>
    <Route path="queries" element={<Queries/>}  />
    
 
    
   </Route>
-  <Route path="/inductions" element={<Team/>} action={teamAction} />
+  <Route path="/inductions" element={<Team/>} action={teamAction} loader={teamLoader}/>
   <Route path="/forum" element={<Forum/>} loader={forumLoader}/>
  
   <Route path="/admin" element={<Nav/>} >
   
-  <Route index element={<AdminHome/>}/>
+  <Route index element={<AdminHome/>} loader={adminHomeLoader}/>
   <Route path="control" element={<Control/>} loader={controlLoader} action={controlAction}/>
 
   <Route path="manageEvents" element={<EventsHandler/>} loader={eventLoader} action={eventHandlerAction}/>
@@ -62,7 +62,7 @@ const router=createBrowserRouter(createRoutesFromElements(
   </Route>
 
 
-  <Route path="admin/login" element={<AdminLogin/>} action={adminLoginAction}/>
+  <Route path="admin/login" element={<AdminLogin/>} />
  
   </>)
 )

@@ -1,7 +1,7 @@
 import React from 'react'
 import decs from "../../assets/decs.png"
-import { FaRegCircleUser } from "react-icons/fa6";
 import { Outlet, useNavigate } from 'react-router-dom';
+import { FaRegCircleUser } from "react-icons/fa6";
 const Nav = () => {
 
 const navigate=useNavigate();

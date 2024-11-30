@@ -27,8 +27,8 @@ const MeetingCard = ({title,venue,purpose,date,id,tag}) => {
             <Form method="delete" >
             
             <input type="hidden" name="id" value={id}></input>
-            <button className='text-white bg-red-700 rounded-lg p-2 lg:p-3 w-full'  type="submit" name="intent" value="delete">{!tag?"Join Now":tag}</button>
-            </Form>
+           {tag && <button className='text-white bg-red-700 rounded-lg p-2 lg:p-3 w-full'  type="submit" name="intent" value="delete">tag</button>
+           } </Form>
         </CardFooter>
     </Card>
 </div>

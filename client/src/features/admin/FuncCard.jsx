@@ -28,9 +28,10 @@ import { useNavigate } from 'react-router-dom'
 import { TbCirclePercentageFilled } from "react-icons/tb";
 import { GoCommentDiscussion } from "react-icons/go";
 
+import { IoIosWarning } from "react-icons/io";
 
 
-const FuncCard = ({redirectTo,icon,heading}) => {
+const FuncCard = ({redirectTo,icon,heading,isAdmin}) => {
     const navigate=useNavigate();
 
     const iconComp=(compIcon)=>{
@@ -69,11 +70,22 @@ const FuncCard = ({redirectTo,icon,heading}) => {
                 <GoCommentDiscussion className='text-red-600 text-5xl '/>
             )
         }
+        else if(compIcon==="warning"){
+            return(
+            < IoIosWarning className='text-red-600 text-5xl '/>
+            )
+        }
     }
-
+    
   return (
     <Card className="border-none flex flex-col  bg-white bg-opacity-90 w-[20%] aspect-square  cursor-pointer hover:scale-105 hover:ease-in transition-all "  onClick={()=>{
-        navigate(`${redirectTo}`)}}>
+        if(!isAdmin){
+            alert("Excom admins have restricted access")
+        }
+        else{
+             navigate(`${redirectTo}`)
+        }
+       }}>
             <CardHeader>
                 <CardTitle>
                  {iconComp(icon)}

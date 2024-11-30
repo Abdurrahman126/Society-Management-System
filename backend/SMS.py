@@ -1,5 +1,9 @@
+
 from flask import Flask, jsonify, request,Response
+import os
 import pymysql
+from urllib.parse import urlparse
+
 from werkzeug.security import check_password_hash
 from pymysql.cursors import DictCursor
 from flask_cors import CORS
@@ -12,20 +16,38 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
+from dotenv import load_dotenv
+
+
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '../.env'))
+
+print("TEST_VAR:", os.getenv('TEST_VAR'))  
+print("MYSQL_USER:", os.getenv('MYSQL_USER'))  # Check if the value is being loaded correctly
+print("MYSQL_PASSWORD:", os.getenv('MYSQL_PASSWORD'))
+print("MYSQL_DB:", os.getenv('MYSQL_DB'))
+import pymysql
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 def get_connection():
     try:
         connection = pymysql.connect(
-            host='localhost',
-            user='newuser',
-            password='@Akhan25',
-            # change to _decs
-            database='society_management_system',
-            cursorclass=DictCursor
+            host=os.getenv('MYSQL_HOST'),
+            user=os.getenv('MYSQL_USER'),
+            password=os.getenv('MYSQL_PASSWORD'),
+            database=os.getenv('MYSQL_DB'),
+            port=32660,  # Ensure correct port
+            cursorclass=pymysql.cursors.DictCursor
         )
         return connection
     except pymysql.MySQLError as err:
         app.logger.error("Error connecting to the database: %s", str(err))
         return None
+
 
 @app.errorhandler(Exception)  
 def handle_exception(e):
@@ -704,6 +726,8 @@ def add_meeting():
     else:
         return jsonify({"error": "Database connection error"}), 500
 #integrated
+from datetime import datetime
+
 @app.route('/api/get_meetings', methods=['GET'])
 def get_meetings():
     connection = get_connection()
@@ -712,15 +736,35 @@ def get_meetings():
 
     try:
         with connection.cursor() as cursor:
+            # Get all meetings
             cursor.execute("SELECT * FROM meetings")
             meetings = cursor.fetchall()
-        return jsonify(meetings)
+
+            # Filter out meetings that have already passed or are delayed
+            current_time = datetime.now()
+            upcoming_meetings = []
+
+            for meeting in meetings:
+                meeting_date = meeting['meeting_date']
+                # You can also compare the meeting time if it's stored in a separate column (e.g., meeting_time)
+                # For simplicity, I assume meeting_date includes the necessary datetime information
+                if meeting_date >= current_time.date():
+                    # If it's today's meeting, ensure the time is still in the future
+                    if meeting_date == current_time.date():
+                        # If the meeting is on the same day, only allow meetings that have not started yet
+                        if meeting['meeting_time'] > current_time.time():
+                            upcoming_meetings.append(meeting)
+                    else:
+                        # If it's in the future, include it
+                        upcoming_meetings.append(meeting)
+
+            return jsonify(upcoming_meetings)
+
     except pymysql.MySQLError as err:
         print("MySQL Error:", err)
         return jsonify({"error": f"Error while fetching meetings: {str(err)}"}), 500
     finally:
         connection.close()
-
 
 #integrated
 @app.route('/api/delete_meeting/<int:meeting_id>',methods=['DELETE'])
@@ -788,12 +832,6 @@ def add_attendance():
                 member_id = member.get('roll_number')
                 status = member.get('attended')
 
-                if status == "present":
-                    status = 1
-                elif status == "absent":
-                    status = 0
-                else:
-                    continue 
                 print(f"Inserting attendance for Roll Number: {member_id}, Status: {status}")
 
                 cursor.execute("""
@@ -841,6 +879,63 @@ def fetch_attendance(meeting_id):
     finally:
         if connection:
             connection.close()
+from flask import request, jsonify
+
+@app.route('/api/track_attendance/<string:roll_number>', methods=['GET'])
+def track_attendance(roll_number):
+    attendance_data = []  # To store the attendance data for each meeting
+    total_meetings = 0  # To track the total number of meetings
+    attended_meetings = 0  # To track the number of meetings attended
+
+    connection = get_connection()
+
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                # Query to get the meetings with the attendance status and meeting date
+                query = """
+                    SELECT m.meeting_id, m.title AS meeting_title, m.purpose, m.venue, m.meeting_date, a.attendance
+                    FROM meetings m
+                    LEFT JOIN attendance a ON m.meeting_id = a.meeting_id AND a.member_id = %s
+                """
+                cursor.execute(query, (roll_number,))
+                rows = cursor.fetchall()
+
+                # Loop through the results and prepare the data
+                for row in rows:
+                    meeting_date = row['meeting_date']
+                    attendance_status = row['attendance']
+                    attendance_data.append({
+                        'meeting_id': row['meeting_id'],
+                        'meeting_title': row['meeting_title'],  # Added meeting_title
+                        'attendance_status': 'Present' if attendance_status else 'Absent',
+                        'meeting_date': meeting_date
+                    })
+
+                    # Increment the total meetings count
+                    total_meetings += 1
+                    if attendance_status:
+                        attended_meetings += 1
+
+            # Calculate attendance percentage
+            if total_meetings > 0:
+                attendance_percentage = attended_meetings / total_meetings * 100
+            else:
+                attendance_percentage = 0
+
+            # Return the attendance data along with the calculated percentage
+            return jsonify({
+                "attendance_data": attendance_data,
+                "attendance_percentage": f"{attendance_percentage:.2f}%"
+            })
+
+        except pymysql.MySQLError as err:
+            print(f"Error: {err}")
+            return jsonify({"error": "Error while calculating attendance."}), 500
+        finally:
+            connection.close()
+    else:
+        return jsonify({"error": "Database connection failed."}), 500
 
 #integrated
 
@@ -906,7 +1001,6 @@ def get_latest_posts():
     finally:
         conn.close()
 
-
 @app.route('/api/reset_database', methods=['POST'])
 def reset_database():
     connection = get_connection()
@@ -916,7 +1010,7 @@ def reset_database():
               
                 connection.begin()
               
-                cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'society_management_system_decs' AND table_type = 'BASE TABLE'")
+                cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'railway' AND table_type = 'BASE TABLE'")
                 tables = cursor.fetchall()
               
                 cursor.execute("SET FOREIGN_KEY_CHECKS=0;")

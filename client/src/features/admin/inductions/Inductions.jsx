@@ -52,6 +52,10 @@ export async function action({request}){
 }
 
 const acceptInduction = async (applicant) => {
+  
+
+
+
   try {
     const response = await fetch("http://127.0.0.1:5001/api/appoint_excom", {
       method: "POST",
@@ -75,28 +79,41 @@ const acceptInduction = async (applicant) => {
   }
 };
 
-
 const Inductions = () => {
-  const {isOn,applicants,excom}=useLoaderData();
-  console.log("from database isOn=",isOn.islive);
-  let newOn=0;
-  if(isOn.islive===0){
-    newOn=1;
-  }
- 
-  // console.log(applicants)
+  const data = useLoaderData();
+
+  // Safely extract data or provide default values
+  const isOn = data?.isOn || { islive: 0 }; // Default to closed if `isOn` is undefined
+  const applicants = data?.applicants || []; // Default to an empty array
+  const excom = data?.excom || []; // Default to an empty array
+
+  let newOn = isOn.islive === 0 ? 1 : 0;
+
   return (
+    <div className="flex flex-col justify-center items-center">
+      {/* Render the button regardless of data */}
+      <h1 className="text-white text-5xl">
+        Inductions are {isOn.islive ? "open" : "closed"}
+      </h1>
+      <Form method="post">
+        <input type="hidden" name="new_status" value={newOn} />
+        <button
+          className="bg-red-600 text-white lg:p-4 p-3 rounded-lg"
+          type="submit"
+        >
+          {isOn.islive ? "Close" : "Open"} inductions
+        </button>
+      </Form>
+      {/* Conditionally render DataTable if data is available */}
+      {isOn.islive && excom.length > 0 && (
+        <DataTable
+          excom={excom}
+          applicants={applicants}
+          handleAccept={acceptInduction}
+        />
+      )}
+    </div>
+  );
+};
 
-      <div className='flex flex-col justify-center items-center'>
-      <h1 className='text-white text-5xl'>Inductions are {!isOn.islive?"closed":"open"}</h1>
-       <Form method="post">
-       <input type="hidden" name="new_status" value={newOn} />
-       <button className='bg-red-600 text-white lg:p-4 p-3 rounded-lg ' type="submit">{!isOn.islive?"Open":"Close"} inductions</button>
-        </Form>
-      { isOn.islive && <DataTable excom={excom} applicants={applicants} handleAccept={acceptInduction}/>}
-        </div>
-         
-  )
-}
-
-export default Inductions
+export default Inductions;
