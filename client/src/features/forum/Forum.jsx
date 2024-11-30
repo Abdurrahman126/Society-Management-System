@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
 import { useLoaderData } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
-import { auth, provider } from "../../firebaseconfig.js";
+import { auth, provider } from "../../firebaseConfig";
 import PostCard from "./PostCard";
 import { useDispatch, useSelector } from "react-redux";
 import { selectEmail, loggedIn } from "./forumSlice";
