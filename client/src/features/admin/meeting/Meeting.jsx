@@ -29,7 +29,7 @@ export const action = async ({ request }) => {
   const intent=formData.get("intent")
  
   if(intent==="post"){
-    const response = await fetch('http://127.0.0.1:5001/api/add_meeting', {
+    const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/add_meeting', {
       method: 'POST',
       body: formData,
     });
@@ -44,7 +44,7 @@ export const action = async ({ request }) => {
   }
   else if(intent==="delete"){
     const id=formData.get('id');
-    const response = await fetch(`http://127.0.0.1:5001/api/delete_meeting/${id}`, {
+    const response = await fetch(`http://alimurtazaathar.pythonanywhere.com/api/delete_meeting/${id}`, {
       method: 'delete',
     });
     
@@ -65,7 +65,7 @@ export async function loader()
 {
 
     try {
-        const response = await fetch('http://127.0.0.1:5001/api/get_meetings'); 
+        const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/get_meetings'); 
         if (!response.ok) {
           throw new Error('Failed to fetch events');
         }

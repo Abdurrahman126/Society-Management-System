@@ -9,7 +9,7 @@ export async function loader({params}){
 
   const roll_number = params.roll_number;
   try {
-      const response = await fetch(`http://127.0.0.1:5001/api/track_attendance/${roll_number}`);
+      const response = await fetch(`http://alimurtazaathar.pythonanywhere.com/api/track_attendance/${roll_number}`);
       if (!response.ok) {
           throw new Error('Failed to fetch event data');
       }

@@ -11,9 +11,9 @@ import { useLoaderData,Form } from "react-router-dom";
 
     try {
       const [isOn, applicants,excom] = await Promise.all([
-        fetch('http://127.0.0.1:5001/api/toggle_status'),
-        fetch('http://127.0.0.1:5001/api/applicants'),
-        fetch('http://127.0.0.1:5001/api/fetch_excom')
+        fetch('http://alimurtazaathar.pythonanywhere.com/api/toggle_status'),
+        fetch('http://alimurtazaathar.pythonanywhere.com/api/applicants'),
+        fetch('http://alimurtazaathar.pythonanywhere.com/api/fetch_excom')
       ])
        
       if (!isOn.ok || !applicants.ok||!excom.ok) {
@@ -37,7 +37,7 @@ import { useLoaderData,Form } from "react-router-dom";
 export async function action({request}){
   const formData = new URLSearchParams(await request.formData());
   console.log("value in forn:",formData.get('new_status'))
-  const response = await fetch('http://127.0.0.1:5001/api/toggle_induction', {
+  const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/toggle_induction', {
       method: 'POST',
       body: formData,
     });
@@ -57,7 +57,7 @@ const acceptInduction = async (applicant) => {
 
 
   try {
-    const response = await fetch("http://127.0.0.1:5001/api/appoint_excom", {
+    const response = await fetch("http://alimurtazaathar.pythonanywhere.com/api/appoint_excom", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

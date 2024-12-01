@@ -5,8 +5,8 @@ import { useLoaderData } from "react-router-dom";
 export async function loader() {
   try {
     const [members, meetings] = await Promise.all([
-      fetch("http://127.0.0.1:5001/api/fetch_members"),
-      fetch("http://127.0.0.1:5001/api/get_meetings"),
+      fetch("http://alimurtazaathar.pythonanywhere.com/api/fetch_members"),
+      fetch("http://alimurtazaathar.pythonanywhere.com/api/get_meetings"),
     ]);
 
     if (!members.ok || !meetings.ok) {
@@ -38,7 +38,7 @@ const Attendance = () => {
     const fetchAttendance = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:5001/api/fetch_attendance/${selectedMeetingId}`
+          `http://alimurtazaathar.pythonanywhere.com/api/fetch_attendance/${selectedMeetingId}`
         );
 
         if (!response.ok) {
@@ -115,7 +115,7 @@ const Attendance = () => {
         attended: member.attended === "present" ? 1 : 0,
       }));
 
-      const response = await fetch("http://127.0.0.1:5001/api/add_attendance", {
+      const response = await fetch("http://alimurtazaathar.pythonanywhere.com/api/add_attendance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

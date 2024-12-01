@@ -18,7 +18,7 @@ const Conclude = () => {
   // Function to handle the Erase button click
   const handleEraseClick = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5001/api/reset_database', {
+      const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/reset_database', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

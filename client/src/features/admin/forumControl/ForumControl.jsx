@@ -5,7 +5,7 @@ export async function loader()
 {
 
     try {
-        const response = await fetch('http://127.0.0.1:5001/api/get_posts'); 
+        const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/get_posts'); 
         if (!response.ok) {
           throw new Error('Failed to fetch events');
         }
@@ -25,7 +25,7 @@ const ForumControl = () => {
     const [posts, setPosts] = useState(postData);
 
     async function handleDelete(id){
-        const response = await fetch(`http://127.0.0.1:5001/api/delete_post/${id}`, {
+        const response = await fetch(`http://alimurtazaathar.pythonanywhere.com/api/delete_post/${id}`, {
           method: 'delete',
         });
         
