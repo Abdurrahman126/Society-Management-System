@@ -7,7 +7,7 @@ export async function loader()
 {
 
     try {
-        const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/events'); 
+        const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/events'); 
         if (!response.ok) {
           throw new Error('Failed to fetch events');
         }

@@ -14,8 +14,8 @@ import {
 export async function loader() {
   try {
     const [toggleStatusResponse, fetchExcomResponse] = await Promise.all([
-      fetch('http://alimurtazaathar.pythonanywhere.com/api/toggle_status'),
-      fetch('http://alimurtazaathar.pythonanywhere.com/api/fetch_excom'),
+      fetch('https://alimurtazaathar.pythonanywhere.com/api/toggle_status'),
+      fetch('https://alimurtazaathar.pythonanywhere.com/api/fetch_excom'),
     ]);
 
     if (!toggleStatusResponse.ok || !fetchExcomResponse.ok) {
@@ -37,7 +37,7 @@ export async function loader() {
 
 export const action = async ({ request }) => {
   const formData = new URLSearchParams(await request.formData());
-  const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/register_induction', {
+  const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/register_induction', {
     method: 'POST',
     body: formData,
   });

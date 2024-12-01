@@ -7,7 +7,7 @@ export const action = async ({ request }) => {
   const formData = new URLSearchParams(await request.formData());
   const roll=formData.get('rollno');
   const pass=formData.get('password');
-  const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/login', {
+  const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/login', {
     method: 'POST',
     body: formData,
   });

@@ -18,7 +18,7 @@ const formSchema = z.object({
 
 export async function loader() {
   try {
-    const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/get_posts');
+    const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/get_posts');
     if (!response.ok) {
       throw new Error('Failed to fetch posts');
     }
@@ -61,7 +61,7 @@ export function Forum() {
     const payload = { email, content: values.content };
 
     try {
-      const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/add_post', {
+      const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/add_post', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ export function Forum() {
     console.log("atleast we're here")
     const form = new FormData(event.target);
     const id = form.get('id'); 
-    const response = await fetch(`http://alimurtazaathar.pythonanywhere.com/api/like_post/${id}`, {
+    const response = await fetch(`https://alimurtazaathar.pythonanywhere.com/api/like_post/${id}`, {
       method: 'POST',
     });
     const data = await response.json();

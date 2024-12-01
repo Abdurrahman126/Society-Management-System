@@ -11,9 +11,9 @@ import { useLoaderData,Form } from "react-router-dom";
 
     try {
       const [isOn, applicants,excom] = await Promise.all([
-        fetch('http://alimurtazaathar.pythonanywhere.com/api/toggle_status'),
-        fetch('http://alimurtazaathar.pythonanywhere.com/api/applicants'),
-        fetch('http://alimurtazaathar.pythonanywhere.com/api/fetch_excom')
+        fetch('https://alimurtazaathar.pythonanywhere.com/api/toggle_status'),
+        fetch('https://alimurtazaathar.pythonanywhere.com/api/applicants'),
+        fetch('https://alimurtazaathar.pythonanywhere.com/api/fetch_excom')
       ])
        
       if (!isOn.ok || !applicants.ok||!excom.ok) {
@@ -37,7 +37,7 @@ import { useLoaderData,Form } from "react-router-dom";
 export async function action({request}){
   const formData = new URLSearchParams(await request.formData());
   console.log("value in forn:",formData.get('new_status'))
-  const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/toggle_induction', {
+  const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/toggle_induction', {
       method: 'POST',
       body: formData,
     });
@@ -57,7 +57,7 @@ const acceptInduction = async (applicant) => {
 
 
   try {
-    const response = await fetch("http://alimurtazaathar.pythonanywhere.com/api/appoint_excom", {
+    const response = await fetch("https://alimurtazaathar.pythonanywhere.com/api/appoint_excom", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

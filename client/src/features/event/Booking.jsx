@@ -4,7 +4,7 @@ import { Form, useActionData, useLoaderData,redirect} from 'react-router-dom';
 export async function loader({ params }) {
     const eventId = params.id;
     try {
-        const response = await fetch(`http://alimurtazaathar.pythonanywhere.com/api/events/${eventId}`);
+        const response = await fetch(`https://alimurtazaathar.pythonanywhere.com/api/events/${eventId}`);
         if (!response.ok) {
             throw new Error('Failed to fetch event data');
         }
@@ -22,7 +22,7 @@ export const action = async ({ request }) => {
     const formData = new URLSearchParams(await request.formData());
     
     // Send data to your backend API
-    const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/bookings', {
+    const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/bookings', {
       method: 'POST',
       body: formData,
     });

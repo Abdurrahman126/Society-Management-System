@@ -19,8 +19,8 @@ const AdminLogin = () => {
     const pass=formData.get('password');
     
     const apiUrl = intent === 'admin' 
-      ? 'http://alimurtazaathar.pythonanywhere.com/api/abbu_admin' 
-      : 'http://alimurtazaathar.pythonanywhere.com/api/signin_admin'; // Different endpoints for Admin and Excom Admin
+      ? 'https://alimurtazaathar.pythonanywhere.com/api/abbu_admin' 
+      : 'https://alimurtazaathar.pythonanywhere.com/api/signin_admin'; // Different endpoints for Admin and Excom Admin
 
     const response = await fetch(apiUrl, {
       method: 'POST',

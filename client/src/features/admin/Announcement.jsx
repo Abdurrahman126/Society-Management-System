@@ -4,7 +4,7 @@ import AnnouncementCard from '@/components/AnnouncementCard';
 export  async function loader(){
 
   try {
-      const response = await fetch(`http://alimurtazaathar.pythonanywhere.com/api/announcements`);
+      const response = await fetch(`https://alimurtazaathar.pythonanywhere.com/api/announcements`);
       if (!response.ok) {
           throw new Error('Failed to fetch event data');
       }
@@ -23,7 +23,7 @@ export const action = async ({ request }) => {
   const intent=formData.get("intent")
  
   if(intent==="post"){
-    const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/add_announcements', {
+    const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/add_announcements', {
       method: 'POST',
       body: formData,
     });
@@ -38,7 +38,7 @@ export const action = async ({ request }) => {
   }
   else if(intent==="delete"){
     const id=formData.get('id');
-    const response = await fetch(`http://alimurtazaathar.pythonanywhere.com/api/delete_announcement/${id}`, {
+    const response = await fetch(`https://alimurtazaathar.pythonanywhere.com/api/delete_announcement/${id}`, {
       method: 'delete',
     });
     

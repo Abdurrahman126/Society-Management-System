@@ -47,7 +47,7 @@ export const action = async ({ request }) => {
   const formData = new URLSearchParams(await request.formData());
   
   // Send data to your backend API
-  const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/change_password', {
+  const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/change_password', {
     method: 'POST',
     body: formData,
   });

@@ -15,8 +15,8 @@ import PassDialog from './PassDialog';
 export async function loader() {
   try {
     const [excom, admins] = await Promise.all([
-      fetch('http://alimurtazaathar.pythonanywhere.com/api/fetch_excom'),
-      fetch('http://alimurtazaathar.pythonanywhere.com/api/fetch_admin')
+      fetch('https://alimurtazaathar.pythonanywhere.com/api/fetch_excom'),
+      fetch('https://alimurtazaathar.pythonanywhere.com/api/fetch_admin')
     ]);
 
     if (!excom.ok || !admins.ok) {
@@ -44,8 +44,8 @@ export async function action({ request }) {
 
   const url =
     intent === "add"
-      ? "http://alimurtazaathar.pythonanywhere.com/api/add_admin"
-      : "http://alimurtazaathar.pythonanywhere.com/api/remove_admin";
+      ? "https://alimurtazaathar.pythonanywhere.com/api/add_admin"
+      : "https://alimurtazaathar.pythonanywhere.com/api/remove_admin";
   const method = intent === "add" ? "POST" : "DELETE";
 
   const payload = intent === "add" ? { rollno, password } : { rollno };

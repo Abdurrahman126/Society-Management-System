@@ -30,7 +30,7 @@ export async function loader()
 {
 
     try {
-        const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/events'); 
+        const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/events'); 
         if (!response.ok) {
           throw new Error('Failed to fetch events');
         }
@@ -47,7 +47,7 @@ export const action = async ({ request }) => {
   const intent=formData.get("intent")
  
   if(intent==="post"){
-    const response = await fetch('http://alimurtazaathar.pythonanywhere.com/api/add_event', {
+    const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/add_event', {
       method: 'POST',
       body: formData,
     });
@@ -62,7 +62,7 @@ export const action = async ({ request }) => {
   }
   else if(intent==="delete"){
     const id=formData.get('id');
-    const response = await fetch(`http://alimurtazaathar.pythonanywhere.com/api/delete_event/${id}`, {
+    const response = await fetch(`https://alimurtazaathar.pythonanywhere.com/api/delete_event/${id}`, {
       method: 'delete',
     });
     
