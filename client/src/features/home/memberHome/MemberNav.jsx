@@ -1,7 +1,7 @@
 import React,{useState} from 'react'
 import decs from '../../../assets/decs.png'
 import { TfiLineDouble } from "react-icons/tfi";
-import { Link ,useLocation,useNavigate,redirect} from 'react-router-dom';
+import { NavLink ,useLocation,useNavigate,redirect} from 'react-router-dom';
 
 import { Outlet } from 'react-router-dom';
 import { FaRegCircleUser } from "react-icons/fa6";
@@ -32,8 +32,10 @@ const MemberNav = () => {
         
     <div className={` flex justify-evenly items-center gap-8 mr-auto }`}>
   
-      <Link to={`/members/attendance/${roll}`}>Attendance</Link>
-      <Link to="/members/meetings">Meetings</Link>
+      <NavLink to={`/members/attendance/${roll}`}   className={({ isActive }) => isActive ? "underline underline-offset-8 scale-110  brightness-110 cursor-pointer" : "cursor-pointer"}
+      >Attendance</NavLink>
+      <NavLink to="/members/meetings"   className={({ isActive }) => isActive ? "underline underline-offset-8 scale-110  brightness-110 cursor-pointer" : "cursor-pointer"}
+      >Meetings</NavLink>
       </div>
       <button className={`text-[px] mr-2 font-medium text-red-600 md:text-xl lg:text-3xl   lg:ease-in-out font-outfit shadow-2xl`}
                         >

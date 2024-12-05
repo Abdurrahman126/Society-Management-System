@@ -1,11 +1,12 @@
 import { useState } from 'react'
+import { Toaster } from '@/components/ui/toaster';  // Import the Toaster component
 import { Button } from "@/components/ui/button"
 import {RouterProvider,createBrowserRouter,createRoutesFromElements,Route,Link,Outlet} from "react-router-dom";
 import Home from './features/home/Home'
 import Login,{action as loginAction} from './features/login/Login'
 import Navbar from './features/nav/Navbar';
 import EventPage,{loader as eventLoader} from './features/event/EventPage';
-import Booking,{loader as bookingLoader,action as bookingAction} from './features/event/Booking';
+import Booking,{loader as bookingLoader,} from './features/event/Booking';
 import Register,{action as registerAction} from './features/login/Register';
 import MemberHome,{action as memberHomeAction} from './features/home/memberHome/MemberHome';
 import AdminHome,{loader as adminHomeLoader} from './features/admin/AdminHome';
@@ -32,9 +33,12 @@ const router=createBrowserRouter(createRoutesFromElements(
     <Route path="login" element={<Login/>} action={loginAction}/>
     <Route path="events" element={<EventPage/>} loader={eventLoader}/>
     
+  <Route path="inductions" element={<Team/>} action={teamAction} loader={teamLoader}/>
+  <Route path="forum" element={<Forum/>} loader={forumLoader}/>
     <Route path="register" element={<Register/>} action={registerAction}/>
+   
   </Route>
-  <Route path="/events/:id" element={<Booking/>} loader={bookingLoader} action={bookingAction}/>
+  <Route path="/events/:id" element={<Booking/>} loader={bookingLoader} />
   <Route path="/members" element={<MemberNav/>} loader={memberNavLoader}>
    <Route index element={<MemberHome/>}  />
    <Route path="attendance/:roll_number" element={<MemberAttendance/>} loader={memberAttendanceLoader} />
@@ -44,8 +48,6 @@ const router=createBrowserRouter(createRoutesFromElements(
 
    
   </Route>
-  <Route path="/inductions" element={<Team/>} action={teamAction} loader={teamLoader}/>
-  <Route path="/forum" element={<Forum/>} loader={forumLoader}/>
  
   <Route path="/admin" element={<Nav/>} >
   
@@ -58,16 +60,18 @@ const router=createBrowserRouter(createRoutesFromElements(
   <Route path="meeting" element={<Meeting/>} action={meetingAction} loader={meetingLoader}/>
   <Route path="attendance" element={<Attendance/>} loader={attendanceLoader}/>
   <Route path="manageForum" element={<ForumControl/>} loader={forumControlLoader}/>
+  <Route path="login" element={<AdminLogin/>} />
 
   </Route>
 
 
-  <Route path="admin/login" element={<AdminLogin/>} />
  
   </>)
 )
 
 export default function App()
 {
-  return <RouterProvider router={router}/>
-}
+  return( <><RouterProvider router={router}/>
+    <Toaster />  </>
+  )
+  }

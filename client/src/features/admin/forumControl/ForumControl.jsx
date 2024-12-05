@@ -5,7 +5,7 @@ export async function loader()
 {
 
     try {
-        const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/get_posts'); 
+        const response = await fetch('http://127.0.0.1:5001/api/get_posts'); 
         if (!response.ok) {
           throw new Error('Failed to fetch events');
         }
@@ -23,43 +23,44 @@ export async function loader()
 const ForumControl = () => {
     const postData=useLoaderData();
     const [posts, setPosts] = useState(postData);
-
-    async function handleDelete(id){
-        const response = await fetch(`https://alimurtazaathar.pythonanywhere.com/api/delete_post/${id}`, {
-          method: 'delete',
+    const mappedPosts=posts.map((item) => (
+      <PostCard
+        key={item.feedback_id}
+        id={item.feedback_id}
+        email={item.email}
+        content={item.content}
+        time={item.timestamp}
+        likes={item.likes}
+        handler={handleDelete}
+        btn="true"
+      
+      />
+    ))
+    async function handleDelete(id) {
+      try {
+        const response = await fetch(`http://127.0.0.1:5001/api/delete_post/${id}`, {
+          method: 'DELETE',
         });
-        
         const data = await response.json();
-        
+    
         if (response.ok) {
           setPosts((prevPosts) =>
             prevPosts.filter((post) => post.feedback_id !== parseInt(id))
           );
-          
-          return  {message:data.message}
-      
-    
-         } else {
-          console.log(data.message)
-          return { error: data.error }
+          console.log(data.message);
+        } else {
+          console.log(data.error);
         }
-        
+      } catch (error) {
+        console.error('Error deleting post:', error);
       }
-     
+    }
+    
   return (
-    <div>   {posts.map((item) => (
-        <PostCard
-          key={item.feedback_id}
-          id={item.feedback_id}
-          email={item.email}
-          content={item.content}
-          time={item.timestamp}
-          likes={item.likes}
-          handler={handleDelete}
-          btn="true"
-        
-        />
-      ))}</div>
+    <div className='flex flex-col justify-evenly gap-y-2'>
+      
+        {posts.length===0 && <h1 className='text-white font-4xl'>No Posts On forum Currently</h1>}
+       {posts.length>0 && mappedPosts}</div>
   )
 }
 

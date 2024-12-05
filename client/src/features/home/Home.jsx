@@ -1,6 +1,10 @@
 import React from 'react'
 import Footer from '../../components/Footer'
 import News from './News'
+import ScrollingAnnouncements from './ScrollingAnnouncements'
+
+
+
 const Home = () => {
   return (
     <>
@@ -17,10 +21,11 @@ const Home = () => {
 </div>
     
     </div>
-    <div className='w-full bg-white h-[1500px] p-6'>
+    <div className='w-full bg-transparent '>
 
-<h1 className='text-white  font-medium text-2xl align-middle'>Announcements to be added</h1>
-{/* <News/> */}
+<ScrollingAnnouncements/>
+
+
 </div>
 
     <Footer/>

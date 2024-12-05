@@ -25,7 +25,9 @@ const Navbar = () => {
       }}/>
 
  </nav>
+       <div className=''>
        {!isOpen && <Outlet/>}
+       </div>
     </>
   )
 }

@@ -14,7 +14,7 @@ export const action = async ({ request }) => {
 
   const formData = new URLSearchParams(await request.formData());
   
-  const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/register', {
+  const response = await fetch('http://127.0.0.1:5001/api/register', {
     method: 'POST',
     body: formData,
   });

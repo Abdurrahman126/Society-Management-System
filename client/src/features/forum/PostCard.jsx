@@ -1,43 +1,65 @@
-import React from 'react'
+import React from 'react';
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import { useNavigate,Form} from 'react-router-dom';
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ThumbsUp, User } from 'lucide-react';
+import { formatDistanceToNow,parseISO } from 'date-fns';
 
+const PostCard = ({ id, content, email, likes, time, handler, btn }) => {
 
+  const date = parseISO(time);
+  const timePeriod = formatDistanceToNow(date);
+  const timeAgo = `${timePeriod} ago`;
 
-const postCard = ({id,content,email,likes,time,handler,btn}) => {
+  const formattedTime = formatDistanceToNow(new Date(time), { addSuffix: true });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (btn === 'true') {
+      handler(id); 
+    } else {
+      handler(); 
+    }
+  };
+
   return (
-    <div className="mt-5 w-[95%] lg:w-[50%] flex flex-col">
-   
-    <Card className="border-none flex flex-col h-full bg-white bg-opacity-90">
-        <CardHeader>
-
-            <CardTitle>{email}</CardTitle>
-            <CardDescription>{time}</CardDescription>
-        </CardHeader>
-        <CardContent className="flex-grow">
-            <p className='font-medium'>{content}</p>
-        </CardContent>
-       
-        <CardFooter>
-     {!btn &&   <form method="POST" onSubmit={handler}>
-            <input type="hidden" name="id" value={id}/>
-         <button className='bg-red-300 rounded-md p-2' type="submit" >Like</button>
-</form>}
-            
-            <span>{btn?`Likes${likes}"`:likes}</span>
-        </CardFooter>
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">
+          <User className="w-4 h-4 inline mr-2" />
+          {email}
+        </CardTitle>
+        <span className="text-xs text-muted-foreground">{timeAgo}</span>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm">{content}</p>
+      </CardContent>
+      <CardFooter className="flex justify-between items-center">
+        <form
+          method={btn === 'true' ? 'DELETE' : 'POST'}
+          onSubmit={handleSubmit} 
+          className="flex items-center"
+        >
+          <input type="hidden" name="id" value={id} />
+          <Button
+            type="submit"
+            variant="ghost"
+            size="sm"
+            className="text-red-600 hover:text-black"
+          >
+            {btn !== 'true' && <ThumbsUp className="w-4 h-4 mr-2" />}
+            {btn !== 'true' ? 'Like' : 'Delete'}
+          </Button>
+        </form>
+        <span className="text-sm text-muted-foreground">{likes} likes</span>
+      </CardFooter>
     </Card>
-    {btn && <button className=' z-10  right-2 bg-red-500' onClick={()=>{handler(id)}}>X</button> }
-  
-</div>
-  )
-}
+  );
+};
 
-export default postCard
+export default PostCard;

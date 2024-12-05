@@ -47,7 +47,7 @@ export const action = async ({ request }) => {
   const formData = new URLSearchParams(await request.formData());
   
   // Send data to your backend API
-  const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/change_password', {
+  const response = await fetch('http://127.0.0.1:5001/api/change_password', {
     method: 'POST',
     body: formData,
   });
@@ -68,10 +68,10 @@ const AdminHome = () => {
     const navigate=useNavigate();
     const email=useSelector(selectEmail);
     console.log(email)
-    const admin=email==="admin@nu.edu.pk"
+    const admin=email==="admin@fast.com"
     
   return (
-        <div className='flex flex-wrap justify-center gap-4 p-4 w-full '>
+        <div className='flex flex-wrap justify-center gap-4 p-4 w-full pt-20'>
           
           <FuncCard redirectTo={"/admin/manageEvents"} icon="FaPlus" heading="Manage Events"  isAdmin={admin}/>
           

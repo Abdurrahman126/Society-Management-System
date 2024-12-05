@@ -75,13 +75,7 @@ CREATE TABLE members (
     team VARCHAR(50) NOT NULL
 );
 
--- Table for teams
-CREATE TABLE teams (
-    roll_number VARCHAR(255) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    position VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL
-);
+
 
 -- Table for admin (assuming excom members can be admins)
 CREATE TABLE admin (

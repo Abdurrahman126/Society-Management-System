@@ -7,7 +7,7 @@ export const action = async ({ request }) => {
   const formData = new URLSearchParams(await request.formData());
   const roll=formData.get('rollno');
   const pass=formData.get('password');
-  const response = await fetch('https://alimurtazaathar.pythonanywhere.com/api/login', {
+  const response = await fetch('http://127.0.0.1:5001/api/login', {
     method: 'POST',
     body: formData,
   });
@@ -41,9 +41,9 @@ const Login = () => {
           <Form method='post' className="w-[90%] flex flex-col justify-evenly items-center gap-4">
           <input name="rollno" placeholder='22k-4297' className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'/>
           <input name="password" type="password" placeholder='Password'  className='text-xs  lg:text-base text-black border-black border-2 rounded-lg p-2 w-[90%] lg:w-[70%] mb-8'/>
-          <button className='bg-red-600 text-white lg:p-4 p-3 rounded-lg lg:w-[70%] w-[90%]'>Proceed</button>
+          <button className='bg-red-600 text-white lg:p-4 p-3 rounded-lg lg:w-[70%] w-[90%]  hover:bg-white hover:text-black hover:border-2 hover:border-black'>Proceed</button>
           </Form>
-          <p className='text-black text-opacity-60 text-xs lg:text-base'>Don't have an account?  <span className='text-red-600 cursor-pointer' onClick={()=>{
+          <p className='text-black text-opacity-60 text-xs lg:text-base'>Haven't joined us yet? <span className='text-red-600 cursor-pointer' onClick={()=>{
             navigate('/register')
           }}>Sign up now!</span></p>
        

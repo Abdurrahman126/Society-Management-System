@@ -1,55 +1,51 @@
+import React, { useState, useEffect } from 'react';
 
-import React, { useState } from "react";
-const Timer = ({eventOn}) => {
-    const [days, setDays] = React.useState(0);
-    const [hours, setHours] = React.useState(0);
-    const [minutes, setMinutes] = React.useState(0);
-    const [seconds, setSeconds] = React.useState(0);
-  
-     const deadline = eventOn;
-    const getTime = () => {
-      const time = Date.parse(deadline) - Date.now();    
-  
-      setDays(Math.floor(time / (1000 * 60 * 60 * 24)));
-      setHours(Math.floor((time / (1000 * 60 * 60)) % 24));
-      setMinutes(Math.floor((time / 1000 / 60) % 60));
-      setSeconds(Math.floor((time / 1000) % 60));
-    };
-  
-    React.useEffect(() => {
-      const interval = setInterval(() => getTime(deadline), 1000);
-  
-      return () => clearInterval(interval);
-    }, []);
-  
+const Timer = ({ eventOn }) => {
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+  function calculateTimeLeft() {
+    const difference = +new Date(eventOn) - +new Date();
+    let timeLeft = {};
+
+    if (difference > 0) {
+      timeLeft = {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      };
+    }
+
+    return timeLeft;
+  }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  });
+
+  const timerComponents = Object.keys(timeLeft).map((interval) => {
+    if (!timeLeft[interval]) {
+      return null;
+    }
+
     return (
-      <div  role="timer" className="bg-black text-white flex justify-center rounded-md p-2 text-xs gap-2">
-        <div >
-          <div >
-            <p id="day" className="bg">{days < 10 ? "0" + days : days}</p>
-            <span >Days</span>
-          </div>
-        </div>
-        <div >
-          <div>
-            <p id="hour" className="bg">{hours < 10 ? "0" + hours : hours}</p>
-            <span >Hours</span>
-          </div>
-        </div>
-        <div >
-          <div >
-            <p id="minute" className="bg">{minutes < 10 ? "0" + minutes : minutes}</p>
-            <span >Minutes</span>
-          </div>
-        </div>
-        <div >
-          <div>
-            <p id="second" className="bg">{seconds < 10 ? "0" + seconds : seconds}</p>
-            <span >Seconds</span>
-          </div>
-        </div>
+      <div key={interval} className="flex flex-col items-center">
+        <span className="text-2xl font-bold text-red-600">{timeLeft[interval]}</span>
+        <span className="text-xs text-gray-500">{interval}</span>
       </div>
     );
-  };
+  });
 
-  export default Timer;
+  return (
+    <div className="flex justify-between w-full">
+      {timerComponents.length ? timerComponents : <span className="text-red-600 font-semibold">Event has started!</span>}
+    </div>
+  );
+};
+
+export default Timer;
+

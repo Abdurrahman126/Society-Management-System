@@ -10,9 +10,9 @@ const adminAuthSlice = createSlice({
     initialState,
     reducers: {
         loggedIn(state, action) {
-            const {email,pass}=action.payload;
+            const {email,password}=action.payload;
             state.email = email;
-            state.password = pass;
+            state.password = password;
             
         },
         // passwordChanged(state,action){

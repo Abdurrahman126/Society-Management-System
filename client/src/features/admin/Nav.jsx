@@ -6,8 +6,8 @@ const Nav = () => {
 
 const navigate=useNavigate();
   return (
-    <div className='h-full'>
-    <nav className="w-[95%] lg:w-full h-10 lg:h-20 text-white bg-black bg-opacity-75 z-10 p-2  rounded-3xl lg:rounded-none mb-  flex items-center justify-between shadow-2xl bg-brightness-150">
+    <div className='h-full  w-full'>
+    <nav className="w-[95%] fixed top-0 lg:w-full h-10 lg:h-20 text-white bg-black bg-opacity-75 z-10 p-2  rounded-3xl lg:rounded-none  flex items-center justify-between shadow-2xl bg-brightness-150">
     <img src={decs} className='max-w-[20%] lg:max-w-[9%] p-2 lg:mr-10 cursor-pointer' onClick={()=>{
       navigate('/');
       }}/>
@@ -16,7 +16,9 @@ const navigate=useNavigate();
                            <FaRegCircleUser  />
                         </button>
  </nav>
+
  <Outlet/>
+ 
    </div>
   )
 }

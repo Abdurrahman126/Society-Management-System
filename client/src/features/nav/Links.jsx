@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link ,useLocation} from 'react-router-dom'
+import { Link ,useLocation,NavLink} from 'react-router-dom'
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -15,25 +15,27 @@ const Links = ({hide}) => {
   return (
     <>
     <div className={`justify-evenly items-center gap-8 mr-auto  lg:flex ${hide?" flex flex-col":"hidden"}`}>
-    <Link to="/events" className='cursor-pointer'>Events</Link>
-    <Link to="/inductions" className='cursor-pointer'>Inductions</Link>
-    <Link to="/forum" className='cursor-pointer'>Forum</Link>
-    {/* <NavigationMenu className="">
-<NavigationMenuList>
-  <NavigationMenuItem>
-    <NavigationMenuTrigger className="!bg-transparent !text-white">Our Team</NavigationMenuTrigger>
-    <NavigationMenuContent className="flex flex-col gap-2 w-full pl-4 pr-12 bg-transparent rounded-md text-sm py-5 text-nowrap" >
-    <NavigationMenuLink>Faculty Heads</NavigationMenuLink>
+    <NavLink 
+  to="/events" 
+  className={({ isActive }) => isActive ? "underline underline-offset-8 scale-110  brightness-110 cursor-pointer" : "cursor-pointer  text-gray-300"}
+>
+  Events
+</NavLink>
 
-      <NavigationMenuLink>Excom</NavigationMenuLink>
+<NavLink 
+  to="/inductions" 
+  className={({ isActive }) => isActive ? "underline underline-offset-8 scale-110  brightness-110 cursor-pointer" : "cursor-pointer text-gray-300"}
+>
+  Inductions
+</NavLink>
 
-      <NavigationMenuLink>Extended Excom</NavigationMenuLink>
+<NavLink 
+  to="/forum" 
+  className={({ isActive }) => isActive ? "underline underline-offset-8 scale-110 brightness-110 cursor-pointer" : "cursor-pointer text-gray-300"}
+>
+  Forum
+</NavLink>
 
-      <NavigationMenuLink>Members</NavigationMenuLink>
-    </NavigationMenuContent>
-  </NavigationMenuItem>
-</NavigationMenuList>
-</NavigationMenu> */}
     </div>
     {location.pathname!="/login" && <Link to="/login">  <button className="text-white bg-red-700 rounded-xl p-1 text-xs lg:text-base lg:p-2 lg:px-6 lg:rounded-3xl ">Join Us</button></Link>
 }

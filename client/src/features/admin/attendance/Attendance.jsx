@@ -5,8 +5,8 @@ import { useLoaderData } from "react-router-dom";
 export async function loader() {
   try {
     const [members, meetings] = await Promise.all([
-      fetch("https://alimurtazaathar.pythonanywhere.com/api/fetch_members"),
-      fetch("https://alimurtazaathar.pythonanywhere.com/api/get_meetings"),
+      fetch("http://127.0.0.1:5001/api/fetch_members"),
+      fetch("http://127.0.0.1:5001/api/get_meetings"),
     ]);
 
     if (!members.ok || !meetings.ok) {
@@ -38,7 +38,7 @@ const Attendance = () => {
     const fetchAttendance = async () => {
       try {
         const response = await fetch(
-          `https://alimurtazaathar.pythonanywhere.com/api/fetch_attendance/${selectedMeetingId}`
+          `http://127.0.0.1:5001/api/fetch_attendance/${selectedMeetingId}`
         );
 
         if (!response.ok) {
@@ -114,8 +114,9 @@ const Attendance = () => {
         roll_number: member.roll_number,
         attended: member.attended === "present" ? 1 : 0,
       }));
-
-      const response = await fetch("https://alimurtazaathar.pythonanywhere.com/api/add_attendance", {
+      console.log(formattedAttendance)
+      console.log(selectedMeetingId)
+      const response = await fetch("http://127.0.0.1:5001/api/add_attendance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -127,9 +128,11 @@ const Attendance = () => {
       if (!response.ok) {
         throw new Error("Failed to save attendance");
       }
-
-      setIsSubmitted(true); // Set submission flag to true after successful save
-      alert("Attendance updated successfully!");
+      else if(response.ok){
+        setIsSubmitted(true); // Set submission flag to true after successful save
+        alert("Attendance updated successfully!");
+      
+      }
     } catch (error) {
       console.error("Error updating attendance:", error);
       alert("Failed to update attendance");
@@ -140,9 +143,10 @@ const Attendance = () => {
   const allRecordsFound = attendance.every((member) => member.recordFound);
 
   return (
-    <div className="w-full">
-      <div className="mb-4">
-        <label className="block mb-2 font-bold text-gray-700">
+    <div className="w-full flex flex-col items-center">
+      {meetings.length===0 && <h1 className="text-white">No Meetings scheduled yet</h1>}
+     {meetings.length>0 && <div className="mb-4">
+        <label className="block mb-2 font-bold text-white text-xl">
           Select Meeting
         </label>
         <select
@@ -158,8 +162,8 @@ const Attendance = () => {
           ))}
         </select>
       </div>
-      <Attendies members={attendance} handleInputChange={handleInputChange} isSubmitted={isSubmitted} />
-      {errorMessage && (
+     }{meetings.length>0 && <Attendies members={attendance} handleInputChange={handleInputChange} isSubmitted={isSubmitted} />
+      }{errorMessage && (
         <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
       )}
       {!allRecordsFound && !isSubmitted && ( // Show save button only if not submitted

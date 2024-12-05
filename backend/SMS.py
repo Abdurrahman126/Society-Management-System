@@ -1,9 +1,5 @@
-
 from flask import Flask, jsonify, request,Response
-import os
 import pymysql
-from urllib.parse import urlparse
-
 from werkzeug.security import check_password_hash
 from pymysql.cursors import DictCursor
 from flask_cors import CORS
@@ -16,38 +12,20 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from dotenv import load_dotenv
-
-
-
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '../.env'))
-
-print("TEST_VAR:", os.getenv('TEST_VAR'))  
-print("MYSQL_USER:", os.getenv('MYSQL_USER'))  # Check if the value is being loaded correctly
-print("MYSQL_PASSWORD:", os.getenv('MYSQL_PASSWORD'))
-print("MYSQL_DB:", os.getenv('MYSQL_DB'))
-import pymysql
-import os
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
-
 def get_connection():
     try:
         connection = pymysql.connect(
-            host=os.getenv('MYSQL_HOST'),
-            user=os.getenv('MYSQL_USER'),
-            password=os.getenv('MYSQL_PASSWORD'),
-            database=os.getenv('MYSQL_DB'),
-            port=32660,  # Ensure correct port
-            cursorclass=pymysql.cursors.DictCursor
+            host='localhost',
+            user='newuser',
+            password='@Akhan25',
+            # change to _decs
+            database='society_management_system',
+            cursorclass=DictCursor
         )
         return connection
     except pymysql.MySQLError as err:
         app.logger.error("Error connecting to the database: %s", str(err))
         return None
-
 
 @app.errorhandler(Exception)  
 def handle_exception(e):
@@ -99,7 +77,6 @@ def get_events():
     finally:
         if connection:
             connection.close()
-
 #checked-integrated
 @app.route('/api/bookings', methods=['POST'])
 def submit_booking():
@@ -108,23 +85,27 @@ def submit_booking():
         return jsonify({'error': 'Failed to connect to the database'}), 500
 
     try:
-        rollno = request.form.get('rollno')
-        name = request.form.get('name')
-        batch = request.form.get('batch')
-        email = request.form.get('email')
-        phone = request.form.get('number')
-        event_id = request.form.get('event_id')  
-        transaction_id = request.form.get('transaction_id')
-  
-        
-        if not all([name, batch, email, phone, event_id]):
+    
+        data = request.get_json()
+
+        rollno = data.get('rollno')
+        name = data.get('name')
+        batch = data.get('batch')
+        email = data.get('email')
+        phone = data.get('number')
+        event_id = data.get('event_id')
+        transaction_id = data.get('transaction_id')
+
+        # Ensure that all required fields are provided
+        if not all([name, batch, email, phone, event_id, transaction_id]):
             return jsonify({'error': 'All fields are required.'}), 400
 
         with connection.cursor() as cursor:
+            # Insert the new booking into the database
             cursor.execute("""
-                INSERT INTO bookings (event_id,roll_number, s_name, batch, phone,transaction_id,email)
-                VALUES (%s, %s, %s, %s, %s,%s,%s)
-            """, (event_id,rollno, name, batch,phone, transaction_id,email))
+                INSERT INTO bookings (event_id, roll_number, s_name, batch, phone, transaction_id, email)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (event_id, rollno, name, batch, phone, transaction_id, email))
             connection.commit()
 
         return jsonify({'message': 'Booking submitted successfully!'}), 201
@@ -323,13 +304,13 @@ def faculty_admin():
     if not all([email, password, secret_key]):
         return jsonify({'error': 'All fields are required.'}), 400
 
-    if email != "admin@nu.edu.pk" or password != "fast123" or secret_key != "k224150":
+    if email != "admin@fast.com" or password != "fast123" or secret_key != "k224150":
         return jsonify({'error': 'Invalid credentials.'}), 401
 
     return jsonify({'message': 'Login successful'}), 200
 
 #checked-integrated
-@app.route('/api/fetch_excom',methods =["GET"])
+@app.route('/api/fetch_excom', methods=["GET"])
 def fetch_excom():
     connection = get_connection()
     if connection:
@@ -337,38 +318,44 @@ def fetch_excom():
             with connection.cursor() as cursor:
                 cursor.execute("SELECT * FROM excom")
                 excom = cursor.fetchall()
-            return jsonify(excom)
+                if not excom:
+                    return jsonify([]), 200
+
+            return jsonify(excom), 200
         
         except pymysql.MySQLError as err:
             print("MySQL Error:", err)
-            return jsonify({"error": f"Error while fetching applicants: {str(err)}"}), 500
+            return jsonify({"error": f"Error while fetching excom: {str(err)}"}), 500
         finally:
             if connection:
                 connection.close()
-        
     else:
         return jsonify({"error": "Database connection error"}), 500
-
-
-@app.route('/api/fetch_admin',methods =["GET"])
+#checked-integrated
+@app.route('/api/fetch_admin', methods=["GET"])
 def fetch_admin():
     connection = get_connection()
     if connection:
         try:
             with connection.cursor() as cursor:
-                cursor.execute("SELECT roll_number,email FROM admin")
-                admin = cursor.fetchall()
-            return jsonify(admin)
+                cursor.execute("SELECT * FROM admin")
+                admins = cursor.fetchall()
+                
+                if not admins:
+                    return jsonify([]), 200
+
+            return jsonify(admins), 200
         
         except pymysql.MySQLError as err:
             print("MySQL Error:", err)
-            return jsonify({"error": f"Error while fetching admin: {str(err)}"}), 500
+            return jsonify({"error": f"Error while fetching admins: {str(err)}"}), 500
         finally:
             if connection:
                 connection.close()
-        
     else:
         return jsonify({"error": "Database connection error"}), 500
+
+
 
 #checked-integrated
 @app.route('/api/add_admin', methods=['POST'])
@@ -433,16 +420,16 @@ def remove_admin():
         return jsonify({"error": "Database connection error"}), 500
 
 #checked
-@app.route('/api/change_password_admin', methods=['POST'])
+@app.route('/api/change_password', methods=['POST'])
 def change_password():
     connection = get_connection()
     if not connection:
         return jsonify({"error": "database connection error"}), 500
 
     try:
-        roll_number = request.form.get('roll_number')
-        current_password = request.form.get('current_password')
-        new_password = request.form.get('new_password')
+        roll_number = request.form.get('Roll number')
+        current_password = request.form.get('Current password')
+        new_password = request.form.get('New password')
 
         if not all([roll_number, current_password, new_password]):
             return jsonify({'error': 'All fields are required.'}), 400
@@ -595,7 +582,7 @@ def register_induction():
         name = request.form.get('name')
         batch = request.form.get('batch')
         department = request.form.get('department')
-        email = request.form.get('email').replace(" ", "")
+        email = request.form.get('email')
         position = request.form.get('position')
         past_experience = request.form.get('past_experience')
         motivation=request.form.get('motivation')
@@ -616,12 +603,61 @@ def register_induction():
                 connection.close()
         else:
             return jsonify({"error": "Database connection error"}), 500
+@app.route('/api/track_attendance/<string:roll_number>', methods=['GET'])
+def track_attendance(roll_number):
+    attendance_data = [] 
+    total_meetings = 0  
+    attended_meetings = 0  
+    connection = get_connection()
+
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                query = """
+                    SELECT m.meeting_id, m.title AS meeting_title, m.purpose, m.venue, m.meeting_date, a.attendance
+                    FROM meetings m
+                    LEFT JOIN attendance a ON m.meeting_id = a.meeting_id AND a.member_id = %s
+                """
+                cursor.execute(query, (roll_number,))
+                rows = cursor.fetchall()
+
+                for row in rows:
+                    meeting_date = row['meeting_date']
+                    attendance_status = row['attendance']
+                    attendance_data.append({
+                        'meeting_id': row['meeting_id'],
+                        'meeting_title': row['meeting_title'],  # Added meeting_title
+                        'attendance_status': 'Present' if attendance_status else 'Absent',
+                        'meeting_date': meeting_date
+                    })
+
+                    total_meetings += 1
+                    if attendance_status:
+                        attended_meetings += 1
+
+            if total_meetings > 0:
+                attendance_percentage = attended_meetings / total_meetings * 100
+            else:
+                attendance_percentage = 0
+
+            return jsonify({
+                "attendance_data": attendance_data,
+                "attendance_percentage": f"{attendance_percentage:.2f}%"
+            })
+
+        except pymysql.MySQLError as err:
+            print(f"Error: {err}")
+            return jsonify({"error": "Error while calculating attendance."}), 500
+        finally:
+            connection.close()
+    else:
+        return jsonify({"error": "Database connection failed."}), 500
 
 #checked-integrated
 @app.route('/api/appoint_excom', methods=['POST'])
 def appoint_excom():
-    data = request.get_json()  # Parse JSON from the request body
-    email = data.get('email', '').strip()  # Extract and clean the email
+    data = request.get_json()  
+    email = data.get('email', '').strip()
     if not email:
         return jsonify({"success": False, "message": "Email is required"}), 400
 
@@ -630,15 +666,22 @@ def appoint_excom():
     if connection:
         try:
             with connection.cursor() as cursor:
-                # Check if the member exists in the `inductions` table
                 cursor.execute("SELECT * FROM inductions WHERE email = %s", (email,))
                 excom_member = cursor.fetchone()
 
                 if excom_member:
-                    # Insert the member into the `excom` table
+                    cursor.execute("SELECT * FROM excom WHERE position = %s", (excom_member['position'],))
+                    existing_position = cursor.fetchone()
+
+                    if existing_position:
+                        return jsonify({
+                            "success": False,
+                            "message": f"The position '{excom_member['position']}' is already occupied."
+                        }), 400
+
                     cursor.execute(
-                        "INSERT INTO excom (roll_number, name, batch, department, email, position,password) "
-                        "VALUES (%s, %s, %s, %s, %s, %s,%s)",
+                        "INSERT INTO excom (roll_number, name, batch, department, email, position, password) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                         (
                             excom_member['roll_number'],
                             excom_member['name'],
@@ -661,46 +704,6 @@ def appoint_excom():
             connection.close()
     else:
         return jsonify({"error": "Database connection error"}), 500
-    
-#integrated
-@app.route('/api/change_password_excom', methods=['POST'])
-def change_password_excom():
-    connection = get_connection()
-    if not connection:
-        return jsonify({"error": "database connection error"}), 500
-
-    try:
-        roll_number = request.form.get('roll_number')
-        current_password = request.form.get('current_password')
-        new_password = request.form.get('new_password')
-
-        if not all([roll_number, current_password, new_password]):
-            return jsonify({'error': 'All fields are required.'}), 400
-
-        with connection.cursor() as cursor:
-           
-            cursor.execute("select password from excom where roll_number = %s", (roll_number,))
-            excom = cursor.fetchone()
-
-            if excom is None:
-                return jsonify({'error': 'Member not found.'}), 404
-
-            if excom['password']!=current_password:
-                return jsonify({'error': 'Current password is incorrect.'}), 401
-
-            
-            cursor.execute("update excom set password = %s where roll_number = %s", (new_password, roll_number))
-            connection.commit()
-
-            return jsonify({'message': 'Password updated successfully.'}), 200
-
-    except Exception as e:
-        print(f"Error changing password: {type(e).__name__}, {e}")
-        return jsonify({'error': 'failed to change password'}), 500
-
-    finally:
-        if connection:
-            connection.close()
 
 #integrated
 @app.route('/api/add_meeting',methods=['POST'])
@@ -726,8 +729,6 @@ def add_meeting():
     else:
         return jsonify({"error": "Database connection error"}), 500
 #integrated
-from datetime import datetime
-
 @app.route('/api/get_meetings', methods=['GET'])
 def get_meetings():
     connection = get_connection()
@@ -736,35 +737,15 @@ def get_meetings():
 
     try:
         with connection.cursor() as cursor:
-            # Get all meetings
             cursor.execute("SELECT * FROM meetings")
             meetings = cursor.fetchall()
-
-            # Filter out meetings that have already passed or are delayed
-            current_time = datetime.now()
-            upcoming_meetings = []
-
-            for meeting in meetings:
-                meeting_date = meeting['meeting_date']
-                # You can also compare the meeting time if it's stored in a separate column (e.g., meeting_time)
-                # For simplicity, I assume meeting_date includes the necessary datetime information
-                if meeting_date >= current_time.date():
-                    # If it's today's meeting, ensure the time is still in the future
-                    if meeting_date == current_time.date():
-                        # If the meeting is on the same day, only allow meetings that have not started yet
-                        if meeting['meeting_time'] > current_time.time():
-                            upcoming_meetings.append(meeting)
-                    else:
-                        # If it's in the future, include it
-                        upcoming_meetings.append(meeting)
-
-            return jsonify(upcoming_meetings)
-
+        return jsonify(meetings)
     except pymysql.MySQLError as err:
         print("MySQL Error:", err)
         return jsonify({"error": f"Error while fetching meetings: {str(err)}"}), 500
     finally:
         connection.close()
+
 
 #integrated
 @app.route('/api/delete_meeting/<int:meeting_id>',methods=['DELETE'])
@@ -832,12 +813,12 @@ def add_attendance():
                 member_id = member.get('roll_number')
                 status = member.get('attended')
 
+               
                 print(f"Inserting attendance for Roll Number: {member_id}, Status: {status}")
 
                 cursor.execute("""
                     INSERT INTO attendance (meeting_id, member_id, attendance)
                     VALUES (%s, %s, %s)
-                    ON DUPLICATE KEY UPDATE attendance = VALUES(attendance)
                 """, (meeting_id, member_id, status))
 
             connection.commit()
@@ -879,65 +860,7 @@ def fetch_attendance(meeting_id):
     finally:
         if connection:
             connection.close()
-from flask import request, jsonify
 
-@app.route('/api/track_attendance/<string:roll_number>', methods=['GET'])
-def track_attendance(roll_number):
-    attendance_data = []  # To store the attendance data for each meeting
-    total_meetings = 0  # To track the total number of meetings
-    attended_meetings = 0  # To track the number of meetings attended
-
-    connection = get_connection()
-
-    if connection:
-        try:
-            with connection.cursor() as cursor:
-                # Query to get the meetings with the attendance status and meeting date
-                query = """
-                    SELECT m.meeting_id, m.title AS meeting_title, m.purpose, m.venue, m.meeting_date, a.attendance
-                    FROM meetings m
-                    LEFT JOIN attendance a ON m.meeting_id = a.meeting_id AND a.member_id = %s
-                """
-                cursor.execute(query, (roll_number,))
-                rows = cursor.fetchall()
-
-                # Loop through the results and prepare the data
-                for row in rows:
-                    meeting_date = row['meeting_date']
-                    attendance_status = row['attendance']
-                    attendance_data.append({
-                        'meeting_id': row['meeting_id'],
-                        'meeting_title': row['meeting_title'],  # Added meeting_title
-                        'attendance_status': 'Present' if attendance_status else 'Absent',
-                        'meeting_date': meeting_date
-                    })
-
-                    # Increment the total meetings count
-                    total_meetings += 1
-                    if attendance_status:
-                        attended_meetings += 1
-
-            # Calculate attendance percentage
-            if total_meetings > 0:
-                attendance_percentage = attended_meetings / total_meetings * 100
-            else:
-                attendance_percentage = 0
-
-            # Return the attendance data along with the calculated percentage
-            return jsonify({
-                "attendance_data": attendance_data,
-                "attendance_percentage": f"{attendance_percentage:.2f}%"
-            })
-
-        except pymysql.MySQLError as err:
-            print(f"Error: {err}")
-            return jsonify({"error": "Error while calculating attendance."}), 500
-        finally:
-            connection.close()
-    else:
-        return jsonify({"error": "Database connection failed."}), 500
-
-#integrated
 
 @app.route('/api/add_post', methods=['POST'])
 def add_post():
@@ -951,11 +874,10 @@ def add_post():
             cursor.execute("INSERT INTO forum (content,email) VALUES (%s, %s)", (content,email))
             conn.commit()
             feedback_id = cursor.lastrowid
-            print(feedback_id)
         return jsonify({"message": "Post added successfully", "feedback_id": feedback_id}), 201
     finally:
         conn.close()
-#integrated
+
 @app.route('/api/like_post/<int:feedback_id>', methods=['POST'])
 def like_post(feedback_id):
     connection = get_connection()
@@ -966,16 +888,20 @@ def like_post(feedback_id):
 
             if cursor.rowcount == 0:
                 return jsonify({"message": "Post not found"}), 404
-            
             cursor.execute("SELECT likes FROM forum WHERE feedback_id = %s", (feedback_id,))
-            updated_likes = cursor.fetchone()
-
-            if updated_likes:
-                return jsonify({"message": "Post liked successfully", "likes": updated_likes})
+            result = cursor.fetchone()
+        if result:
+            return jsonify({"message": "Post liked successfully", "likes": result['likes']})
+        else:
+            return jsonify({"message": "Post not found"}), 404
+    except pymysql.MySQLError as err:
+        print("MySQL Error:", err)
+        return jsonify({"error": f"Error while liking post: {str(err)}"}), 500
 
     finally:
         connection.close()
-#integrated
+
+
 @app.route('/api/delete_post/<int:feedback_id>', methods=['DELETE'])
 def delete_post(feedback_id):
     connection = get_connection()
@@ -989,15 +915,28 @@ def delete_post(feedback_id):
     finally:
         connection.close()
 
-#integrated
+from datetime import datetime
+
 @app.route('/api/get_posts', methods=['GET'])
 def get_latest_posts():
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT feedback_id, email, content, likes, timestamp FROM forum ORDER BY feedback_id DESC LIMIT 10")
-            result = cursor.fetchall() 
-            return jsonify(result)
+            cursor.execute(
+                "SELECT feedback_id, content, email, likes, timestamp FROM forum ORDER BY feedback_id DESC LIMIT 10"
+            )
+            result = cursor.fetchall()
+            formatted_result = [
+                {
+                    "feedback_id": row["feedback_id"],
+                    "content": row["content"],
+                    "email": row["email"],
+                    "likes": row["likes"],
+                    "timestamp": row["timestamp"].isoformat() if row["timestamp"] else None
+                }
+                for row in result
+            ]
+            return jsonify(formatted_result), 200
     finally:
         conn.close()
 
@@ -1007,21 +946,29 @@ def reset_database():
     if connection:
         try:
             with connection.cursor() as cursor:
-              
                 connection.begin()
-              
-                cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'railway' AND table_type = 'BASE TABLE'")
+
+                # Fetch all table names
+                cursor.execute(
+                    "SELECT table_name FROM information_schema.tables WHERE table_schema = 'society_management_system' AND table_type = 'BASE TABLE'"
+                )
                 tables = cursor.fetchall()
-              
+
                 cursor.execute("SET FOREIGN_KEY_CHECKS=0;")
+                
                 for table in tables:
                     table_name = table['TABLE_NAME']
-                    print(f"Truncating {table_name}")
-                    cursor.execute(f"TRUNCATE TABLE {table_name};")
-               
+                    if table_name == 'induction_toggle':
+                        print(f"Resetting {table_name}")
+                        cursor.execute(f"DELETE FROM {table_name};")  # Deletes all rows
+                        cursor.execute(f"INSERT INTO {table_name} VALUES (0);")  # Inserts 0
+                    else:
+                        print(f"Truncating {table_name}")
+                        cursor.execute(f"TRUNCATE TABLE {table_name};")  # Truncate other tables
+
                 cursor.execute("SET FOREIGN_KEY_CHECKS=1;")
                 connection.commit()
-                return jsonify({"success": True, "message": "All tables have been truncated."})
+                return jsonify({"success": True, "message": "Database has been reset successfully."})
         except pymysql.MySQLError as err:
             print("MySQL Error:", err)
             connection.rollback()
@@ -1033,4 +980,3 @@ def reset_database():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
-    
