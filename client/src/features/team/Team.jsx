@@ -156,6 +156,18 @@ const Team = () => {
         variant: "destructive",
         action: <ToastAction altText="Retry">Retry</ToastAction>,
       });
+    } else {
+      // Success: show toast and reset form
+      toast({
+        title: "Submission Successful",
+        description: "Stay Tuned!",
+        action: (
+          <ToastAction altText="Dismiss" onClick={() => navigate("/")}>
+            Ok
+          </ToastAction>
+        ),
+      });
+      form.reset();
     }
   };
 
