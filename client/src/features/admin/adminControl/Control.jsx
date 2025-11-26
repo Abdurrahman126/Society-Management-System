@@ -78,54 +78,58 @@ const Control = () => {
   console.log(data);
   const excoms=data?.excoms ||[];
   const admins=data?.admins||[];
-  return (
-    <div className='bg-white'>
-      <Table>
-        <TableCaption>List of Excom members</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">Name</TableHead>
-            <TableHead>Roll Number</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Position</TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {excoms.map((excom) => {
-            const isAdmin = admins.some((admin) => admin.roll_number === excom.roll_number);
+  return (<div className='h-dvh flex justify-center items-center'>
+    
+      <div className='bg-white rounded-lg'>
+    
+       {excoms.length>0? (
+        <>
 
-            return (
-              <TableRow key={excom.roll_number}>
-                <TableCell>{excom.name}</TableCell>
-                <TableCell>{excom.roll_number}</TableCell>
-                <TableCell>{excom.email}</TableCell>
-                <TableCell>{excom.position}</TableCell>
-                <TableCell>
-                  <PassDialog
-                    rollno={excom.roll_number}
-                    isAdmin={isAdmin}
-                  />
-                  {isAdmin && (
-                    <Form method="delete">
-
-                    <input type="hidden" name="rollno" value={excom.roll_number}/>
-                    <button
-                      className='border-red-400 border-2 rounded-md p-2 hover:bg-red-300 ml-2'
-                      name="intent" value="delete"
-                      type="submit"
-                    >
-                      Remove
-                    </button>
-                    </Form>
-                  )}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+        <Table>
+          <TableCaption>List of Excom members</TableCaption>
+          <TableHeader >
+            <TableRow >
+              <TableHead className="w-[100px] text-red-600">Name</TableHead>
+              <TableHead className=" text-red-600">Roll Number</TableHead>
+              <TableHead className=" text-red-600">Email</TableHead>
+              <TableHead className=" text-red-600">Position</TableHead>
+              <TableHead className=" text-red-600">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {excoms.map((excom) => {
+              const isAdmin = admins.some((admin) => admin.roll_number === excom.roll_number);
+              return (
+                <TableRow key={excom.roll_number}>
+                  <TableCell>{excom.name}</TableCell>
+                  <TableCell>{excom.roll_number}</TableCell>
+                  <TableCell>{excom.email}</TableCell>
+                  <TableCell>{excom.position}</TableCell>
+                  <TableCell>
+                    <PassDialog
+                      rollno={excom.roll_number}
+                      isAdmin={isAdmin}
+                    />
+                    {isAdmin && (
+                      <Form method="delete">
+                      <input type="hidden" name="rollno" value={excom.roll_number}/>
+                      <button
+                        className='border-red-400 border-2 rounded-md p-2 hover:bg-red-300 ml-2'
+                        name="intent" value="delete"
+                        type="submit"
+                      >
+                        Remove
+                      </button>
+                      </Form>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table></>):(<h1 className='text-5xl text-black p-8 bg-white rounded-md'>Excom not decided yet</h1>)}
+      </div>
+  </div>
   );
 };
 

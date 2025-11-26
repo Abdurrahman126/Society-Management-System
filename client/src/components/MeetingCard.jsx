@@ -4,15 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin } from 'lucide-react';
 import { Form } from 'react-router-dom';
 
-const MeetingCard = ({ title, purpose, venue, date, id }) => {
+const MeetingCard = ({ title, purpose, venue, date, id,btn }) => {
   return (
-    <Card className="bg-white border-none overflow-hidden transition-all duration-300 hover:shadow-lg">
+    <Card className="bg-white border-none overflow-hidden transition-all duration-300 hover:shadow-lg ">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl font-semibold text-gray-900">{title}</CardTitle>
           <Form method="delete">
             <input type="hidden" name="id" value={id} />
-            <Button
+            {btn && <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-100"
@@ -24,7 +24,7 @@ const MeetingCard = ({ title, purpose, venue, date, id }) => {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
-            </Button>
+            </Button> }
           </Form>
         </div>
         <CardDescription className="text-gray-600">{purpose}</CardDescription>

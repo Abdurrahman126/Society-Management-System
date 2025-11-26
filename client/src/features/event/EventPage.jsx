@@ -44,7 +44,7 @@ const EventPage = () => {
   return (
     <div className='min-h-screen flex flex-col justify-center items-center'>
         <h1 className='text-white text-3xl'>Live Events</h1>
-        <div className='flex space-x-4 '>
+        <div className='flex space-x-4 p-8'>
     {events}
 
 </div>

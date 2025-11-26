@@ -3,18 +3,18 @@ import { Toaster } from '@/components/ui/toaster';  // Import the Toaster compon
 import { Button } from "@/components/ui/button"
 import {RouterProvider,createBrowserRouter,createRoutesFromElements,Route,Link,Outlet} from "react-router-dom";
 import Home from './features/home/Home'
-import Login,{action as loginAction} from './features/login/Login'
+import Login from './features/login/Login'
 import Navbar from './features/nav/Navbar';
 import EventPage,{loader as eventLoader} from './features/event/EventPage';
-import Booking,{loader as bookingLoader,} from './features/event/Booking';
-import Register,{action as registerAction} from './features/login/Register';
+// import Booking,{loader as bookingLoader,} from './features/event/BookingForm';
+import Register from './features/login/Register';
 import MemberHome,{action as memberHomeAction} from './features/home/memberHome/MemberHome';
 import AdminHome,{loader as adminHomeLoader} from './features/admin/AdminHome';
 import EventsHandler,{action as eventHandlerAction} from './features/admin/event/EventsHandler';
 import Nav from './features/admin/Nav';
 import Announcement ,{action as announcementAction,loader as announcementLoader}from './features/admin/Announcement';
 import Inductions,{loader as inductionsLoader,action as toggleAction} from './features/admin/inductions/Inductions';
-import Team ,{action as teamAction,loader as teamLoader} from './features/team/Team';
+import Team ,{loader as teamLoader} from './features/team/Team';
 import Control,{loader as controlLoader,action as controlAction} from './features/admin/adminControl/Control';
 import Meeting,{action as meetingAction,loader as meetingLoader} from './features/admin/meeting/Meeting';
 import AdminLogin from './features/admin/AdminLogin';
@@ -30,15 +30,15 @@ const router=createBrowserRouter(createRoutesFromElements(
   <>
   <Route path="/" element={<Navbar/>}>
     <Route index element={<Home/>} />
-    <Route path="login" element={<Login/>} action={loginAction}/>
+    <Route path="login" element={<Login/>}/>
     <Route path="events" element={<EventPage/>} loader={eventLoader}/>
     
-  <Route path="inductions" element={<Team/>} action={teamAction} loader={teamLoader}/>
+  <Route path="inductions" element={<Team/>} loader={teamLoader}/>
   <Route path="forum" element={<Forum/>} loader={forumLoader}/>
-    <Route path="register" element={<Register/>} action={registerAction}/>
+    <Route path="register" element={<Register/>}/>
    
   </Route>
-  <Route path="/events/:id" element={<Booking/>} loader={bookingLoader} />
+  {/* <Route path="/events/:id" element={<Booking/>} loader={bookingLoader} /> */}
   <Route path="/members" element={<MemberNav/>} loader={memberNavLoader}>
    <Route index element={<MemberHome/>}  />
    <Route path="attendance/:roll_number" element={<MemberAttendance/>} loader={memberAttendanceLoader} />

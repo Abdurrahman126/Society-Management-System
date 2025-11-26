@@ -12,14 +12,62 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const [loginType, setLoginType] = useState('excom');
   const email=useSelector(selectEmail)
+  const [formValues, setFormValues] = useState({
+    email: '',
+    password: '',
+    secret_key: ''
+  });
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log('Input changed:', name, value);
+    setFormValues(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const formData = new FormData(event.target);
-    const email = formData.get('email');
-    const password = formData.get('password');
+    // Get values directly from the form to ensure we have the latest values
+    const form = event.target;
+    const emailInput = form.querySelector('input[name="email"]');
+    const passwordInput = form.querySelector('input[name="password"]');
+    const secretKeyInput = form.querySelector('input[name="secret_key"]');
+
+    // Use DOM values first, fallback to state if DOM reading fails
+    const email = (emailInput?.value?.trim() || formValues.email?.trim() || '').trim();
+    const password = passwordInput?.value || formValues.password || '';
+    const secretKey = secretKeyInput?.value || formValues.secret_key || '';
+
+    // Validate fields before submitting
+    if (!email || !password) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    if (loginType === 'admin' && !secretKey) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    // Use URLSearchParams for form-encoded data (works better with Flask)
+    const formData = new URLSearchParams();
+    formData.append('email', email);
+    formData.append('password', password);
+    
+    if (loginType === 'admin') {
+      formData.append('secret_key', secretKey);
+    }
+    
+    // Debug: log what we're sending
+    console.log('Sending form data:', {
+      email: email,
+      password: password ? '***' : '',
+      secret_key: loginType === 'admin' ? (secretKey ? '***' : '') : 'N/A',
+      loginType
+    });
     
     const apiUrl = loginType === 'admin' 
       ? 'http://127.0.0.1:5001/api/abbu_admin' 
@@ -28,14 +76,18 @@ const AdminLogin = () => {
     try {
       const response = await fetch(apiUrl, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString(),
       });
 
       const data = await response.json();
+      console.log('Response:', data);
 
       if (response.ok) {
         console.log("dispatching")
-        dispatch(loggedIn({ email, password }));
+        dispatch(loggedIn({ email: email, password: password }));
         navigate('/admin');
         console.log("dispatched")
 
@@ -53,10 +105,12 @@ const AdminLogin = () => {
       <div className='bg-white lg:w-[35%] w-[80%] h-[60%] rounded-2xl flex flex-col items-center justify-evenly animate-open '> 
         <h1 className='text-black lg:text-4xl text-2xl font-bold'>Sign In</h1>
         
-        <form onSubmit={handleSubmit} className="w-[90%] flex flex-col justify-evenly items-center gap-4">
+        <form id="admin-login-form" onSubmit={handleSubmit} className="w-[90%] flex flex-col justify-evenly items-center gap-4">
           <Input 
             name="email" 
             type="email"
+            value={formValues.email}
+            onChange={handleChange}
             placeholder='admin@fast.com' 
             className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'
             required
@@ -64,6 +118,8 @@ const AdminLogin = () => {
           <Input 
             name="password" 
             type="password"
+            value={formValues.password}
+            onChange={handleChange}
             placeholder="Password"
             className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 w-[90%] lg:w-[70%]'
             required
@@ -72,6 +128,8 @@ const AdminLogin = () => {
             <Input 
               name="secret_key" 
               type="password"
+              value={formValues.secret_key}
+              onChange={handleChange}
               placeholder="Secret Key"
               className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 w-[90%] lg:w-[70%]'
               required

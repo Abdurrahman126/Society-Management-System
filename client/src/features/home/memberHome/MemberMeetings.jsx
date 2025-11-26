@@ -26,16 +26,19 @@ const MemberMeetings = () => {
       return(
     
       <MeetingCard key={item.meeting_id} id={item.meeting_id} title={item.title}
-      purpose={item.purpose} venue={item.venue} date={item.meeting_date} />
+      purpose={item.purpose} venue={item.venue} date={item.meeting_date} btn={false}/>
       )
   })
   
   return (
-    <div className='pt-20'>
+    <div className='flex flex-col gap-4 flex-1 items-center justify-center pt-24'>
       <h1 className='text-4xl text-white'>{array.length>0?'Upcoming Meetings':"No meetings scheduled"}</h1>
+      <div className='h-full w-full flex items-center justify-center gap-4'>
         {meetings}
+        </div>
+    
     </div>
   )
 }
 
-export default MemberMeetings
+export default MemberMeetings 

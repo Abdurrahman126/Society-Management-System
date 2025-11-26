@@ -15,11 +15,11 @@ logging.basicConfig(level=logging.DEBUG)
 def get_connection():
     try:
         connection = pymysql.connect(
-            host='localhost',
-            user='newuser',
-            password='@Akhan25',
+            host='127.0.0.1',
+            user='root',
+            # password='@Akhan25',
             # change to _decs
-            database='society_management_system',
+            database='Society_Management_System',
             cursorclass=DictCursor
         )
         return connection
@@ -97,7 +97,7 @@ def submit_booking():
         transaction_id = data.get('transaction_id')
 
         # Ensure that all required fields are provided
-        if not all([name, batch, email, phone, event_id, transaction_id]):
+        if not all([name, batch, email, phone, event_id, transaction_id, rollno]):
             return jsonify({'error': 'All fields are required.'}), 400
 
         with connection.cursor() as cursor:
@@ -117,8 +117,28 @@ def submit_booking():
     finally:
         if connection:
             connection.close()
+@app.route('/api/bookings/<int:event_id>', methods=['GET'])
+def get_bookings(event_id):
+    connection = get_connection()
+    if not connection:
+        return jsonify({'error': 'Failed to connect to the database'}), 500
 
-# updated check
+    try:
+        with connection.cursor() as cursor: 
+            cursor.execute("SELECT s_name AS name, email FROM bookings WHERE event_id = %s", (event_id,))
+            bookings = cursor.fetchall()
+
+        return jsonify(bookings), 200
+
+    except Exception as e:
+        print(f"Error fetching bookings: {e}")
+        return jsonify({'error': 'Failed to fetch bookings'}), 500
+
+    finally:
+        if connection:
+            connection.close()
+
+
 @app.route('/api/login', methods=['POST'])
 def login_user():
     connection = get_connection()

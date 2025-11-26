@@ -143,39 +143,56 @@ const Attendance = () => {
   const allRecordsFound = attendance.every((member) => member.recordFound);
 
   return (
-    <div className="w-full flex flex-col items-center">
-      {meetings.length===0 && <h1 className="text-white">No Meetings scheduled yet</h1>}
-     {meetings.length>0 && <div className="mb-4">
-        <label className="block mb-2 font-bold text-white text-xl">
-          Select Meeting
-        </label>
-        <select
-          value={selectedMeetingId}
-          onChange={handleMeetingChange}
-          className="border border-gray-300 rounded-lg p-2"
-          disabled={isSubmitted} // Disable if submitted
-        >
-          {meetings.map((meeting) => (
-            <option key={meeting.meeting_id} value={meeting.meeting_id}>
-              {meeting.title || `Meeting ${meeting.meeting_id}`}
-            </option>
-          ))}
-        </select>
-      </div>
-     }{meetings.length>0 && <Attendies members={attendance} handleInputChange={handleInputChange} isSubmitted={isSubmitted} />
-      }{errorMessage && (
+    <div className="min-h-screen flex items-start justify-center pt-24 px-4">
+    <div className="w-full max-w-4xl flex flex-col items-center">
+      {meetings.length === 0 && (
+        <h1 className="text-white text-center text-xl">No Meetings scheduled yet</h1>
+      )}
+  
+      {meetings.length > 0 && (
+        <>
+          <div className="mb-6 w-full">
+            <label className="block mb-2 font-bold text-white text-xl text-center">
+              Select Meeting
+            </label>
+            <select
+              value={selectedMeetingId}
+              onChange={handleMeetingChange}
+              className="block mx-auto border border-gray-300 rounded-lg p-2"
+              disabled={isSubmitted}
+            >
+              {meetings.map((meeting) => (
+                <option key={meeting.meeting_id} value={meeting.meeting_id}>
+                  {meeting.title || `Meeting ${meeting.meeting_id}`}
+                </option>
+              ))}
+            </select>
+          </div>
+  
+          <Attendies
+            members={attendance}
+            handleInputChange={handleInputChange}
+            isSubmitted={isSubmitted}
+          />
+        </>
+      )}
+  
+      {errorMessage && (
         <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
       )}
-      {!allRecordsFound && !isSubmitted && ( // Show save button only if not submitted
+  
+      {!allRecordsFound && !isSubmitted && (
         <button
           type="submit"
           onClick={handleSubmit}
-          className="text-white bg-red-700 rounded-lg p-2 lg:p-3"
+          className="mt-6 text-white bg-red-700 rounded-lg px-6 py-2 hover:bg-red-800 w-[70%]"
         >
           Save
         </button>
       )}
     </div>
+  </div>
+  
   );
 };
 

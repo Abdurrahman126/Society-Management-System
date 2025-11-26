@@ -71,7 +71,7 @@ const AdminHome = () => {
     const admin=email==="admin@fast.com"
     
   return (
-        <div className='flex flex-wrap justify-center gap-4 p-4 w-full pt-20'>
+        <div className='flex flex-wrap justify-center gap-4 p-4 w-full pt-32'>
           
           <FuncCard redirectTo={"/admin/manageEvents"} icon="FaPlus" heading="Manage Events"  isAdmin={admin}/>
           

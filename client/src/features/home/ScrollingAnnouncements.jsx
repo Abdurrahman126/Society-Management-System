@@ -66,15 +66,14 @@ const ScrollingAnnouncements = () => {
     
     setActiveIndex(nextIndex);
 
-    scrollContainer.style.transition = 'transform 0.5s ease-in-out';
-    scrollContainer.style.transform = `translateX(-${100 * nextIndex}%)`;
-    
-    setTimeout(() => {
-      scrollContainer.style.transition = 'none';
-      scrollContainer.style.transform = 'translateX(0)';
-      scrollContainer.scrollLeft = 0;
-    }, 500);
+    // Scroll to the next or previous announcement
+    const scrollPosition = scrollContainer.children[nextIndex].offsetLeft;
+    scrollContainer.scrollTo({
+      left: scrollPosition,
+      behavior: 'smooth',
+    });
 
+    // Reset timeout after navigation
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -97,7 +96,7 @@ const ScrollingAnnouncements = () => {
           </button>
           <div 
             ref={scrollRef}
-            className="flex overflow-hidden"
+            className="flex overflow-x-auto snap-x"
             style={{ 
               width: '100%',
               scrollSnapType: 'x mandatory',
@@ -131,4 +130,3 @@ const ScrollingAnnouncements = () => {
 };
 
 export default ScrollingAnnouncements;
-

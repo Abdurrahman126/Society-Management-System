@@ -148,7 +148,7 @@ export function Forum() {
   }
   
   return (
-    <div className="max-w-4xl mx-auto px-4 py-24">
+    <div className="max-w-4xl mx-auto px-4 py-24 ">
       <Card className="mb-8">
         <CardHeader>
           <CardTitle className="text-2xl font-bold flex items-center">

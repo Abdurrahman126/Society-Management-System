@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { useLoaderData, Form, useFetcher } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
@@ -49,11 +51,10 @@ export async function action({ request }) {
   }
 }
 
-
 const Inductions = () => {
   const data = useLoaderData();
   const fetcher = useFetcher();
-  
+  console.log(data);
   const [isOn, setIsOn] = useState(data?.isOn?.islive || false);
   const [applicants, setApplicants] = useState(data?.applicants || []);
   const [excom, setExcom] = useState(data?.excom || []);
@@ -97,7 +98,6 @@ const Inductions = () => {
       setAppointmentSuccess("false");
     }
   };
-
   const handleToggle = (checked) => {
     fetcher.submit(
       { new_status: checked ? 1 : 0 },
@@ -108,28 +108,45 @@ const Inductions = () => {
 
   return (
     <div className="flex flex-col justify-center items-center pt-20">
-      <div className='flex justify-evenly w-full items-center'>
-        <h1 className="text-white text-5xl">
-          Inductions are {isOn ? "open" : "closed"}
-        </h1>
-        <div className="flex items-center space-x-4">
-          <Form method="post">
-            <input
-              type="hidden"
-              name="new_status"
-              value={isOn ? 0 : 1}
-            />
-          </Form>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="induction-toggle"
-              checked={isOn}
-              onCheckedChange={handleToggle}
-          
-            />
-            <label htmlFor="induction-toggle" className="text-sm font-medium text-white">
-              {isOn?"Close":"Open"} Inductions
-            </label>
+      <div className="w-full max-w-4xl mx-auto px-4">
+        <div className=" rounded-lg shadow-lg p-8 mb">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <h1 className="text-white text-4xl md:text-5xl font-bold mb-4 md:mb-0">
+              Inductions are{" "}
+              <span>
+                {isOn ? "open" : "closed"}
+              </span>
+            </h1>
+            <div className="flex items-center space-x-4">
+              <Form method="post">
+                <input
+                  type="hidden"
+                  name="new_status"
+                  value={isOn ? 0 : 1}
+                />
+              </Form>
+              <div className="flex items-center space-x-3">
+  <Switch
+    id="induction-toggle"
+    checked={isOn}
+    onCheckedChange={handleToggle}
+    className={`transition-all duration-300 ${
+      isOn
+        ? "bg-green-500"
+        : "bg-gray-300"
+    }`}
+  />
+  <label
+    htmlFor="induction-toggle"
+    className={`text-sm font-semibold transition-all duration-300 ${
+      isOn ? "text-green-400" : "text-red-400"
+    }`}
+  >
+    {isOn ? "Close Inductions" : "Open Inductions"}
+  </label>
+</div>
+
+            </div>
           </div>
         </div>
       </div>

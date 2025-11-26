@@ -14,7 +14,7 @@ const Attendies = ({ members, handleInputChange, isSubmitted }) => {
   return (
     <div className="bg-white w-[70%] rounded-xl">
       <h1 className="text-white">Current Applicants</h1>
-      <Table>
+      <Table className="p-16">
         <TableCaption>Team Decs</TableCaption>
         <TableHeader>
           <TableRow>

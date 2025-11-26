@@ -80,7 +80,7 @@ const EventsHandler = () => {
   ));
 
   return (
-    <div className="min-h-screen  py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen  py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-white text-4xl font-bold mb-8 text-center">Events Live</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -108,7 +108,7 @@ const EventsHandler = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="about_event">About Event</Label>
-                      <Input id="about_event" name="about_event" placeholder="Please pass lelo" required />
+                      <Input id="about_event" name="about_event" placeholder="Join us now!" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="venue">Venue</Label>

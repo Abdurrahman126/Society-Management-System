@@ -77,6 +77,7 @@ const Meeting = () => {
       venue={item.venue}
       date={item.meeting_date}
       tag="Delete Meeting"
+      btn={true}
     />
   ));
 

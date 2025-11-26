@@ -25,7 +25,7 @@ const PassDialog = ({ rollno, isAdmin }) => {
         <DialogHeader>
           <DialogTitle>Enter Admin Password</DialogTitle>
           <DialogDescription>
-            Password shall be sent in email
+            Password shall be sent through email
           </DialogDescription>
         </DialogHeader>
         <Form method="post">

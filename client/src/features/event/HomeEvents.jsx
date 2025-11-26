@@ -1,19 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Timer from '@/components/Timer';
+import { CalendarDays, MapPin } from 'lucide-react';
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Timer from '@/components/Timer'
-import { CalendarDays, MapPin } from 'lucide-react'
-
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogClose
+  } from "@/components/ui/dialog";
+  import BookingForm from './BookingForm';
 const HomeEvents = ({ name, description, id, eventOn, btnAction, venue }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleModalClose = () => setIsOpen(false);
+    const handleModalOpen = () => setIsOpen(true);
+
     return (
-        <Card className="flex flex-col justify-evenly items-stretch flex-1 bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden aspect-square">
+        <Card className="flex flex-col justify-evenly bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden aspect-square">
             <CardHeader className="pb-2">
                 <CardTitle className="text-xl font-bold text-gray-900">{name}</CardTitle>
                 <CardDescription className="text-sm text-gray-600 flex items-center">
@@ -39,14 +47,24 @@ const HomeEvents = ({ name, description, id, eventOn, btnAction, venue }) => {
             <CardFooter className="pt-4">
                 <Button 
                     className="w-full bg-red-700 hover:bg-red-800 text-white" 
-                    onClick={btnAction}
+                    onClick={handleModalOpen}
                 >
                     Book Now
                 </Button>
             </CardFooter>
+
+            {/* Modal for Booking */}
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+  <DialogTrigger />
+  <DialogContent className="bg-white p-7 rounded-2xl max-w-lg mx-auto">
+    <BookingForm eventData={{ event_id: id }} />
+
+    
+  </DialogContent>
+</Dialog>
+
         </Card>
     );
 };
 
-export default HomeEvents
-
+export default HomeEvents;

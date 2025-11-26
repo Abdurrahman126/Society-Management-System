@@ -17,17 +17,30 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, CheckCircle } from 'lucide-react';
+import { MoreHorizontal, CheckCircle, Inbox } from 'lucide-react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ApplicantDetailsModal from './ApplicantDetailsModal';
 
 const DataTable = ({ applicants, handleAccept, excom }) => {
   const [selectedApplicant, setSelectedApplicant] = useState(null);
 
+  const isEmpty = applicants.length === 0 && excom.length === 0;
+
+  if (isEmpty) {
+    return (
+      <div className="w-full max-w-2xl mx-auto mt-12 bg-white shadow-md rounded-xl p-12 flex flex-col items-center justify-center text-center space-y-4">
+        <Inbox className="h-12 w-12 text-gray-400 animate-pulse" />
+        <h2 className="text-xl font-semibold text-gray-700">No applications yet</h2>
+        <p className="text-sm text-gray-500">Check back later to view submitted applications.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
-      <ScrollArea className="h-[600px] p-8">
-        <Table>
+    <div className="w-full max-w-6xl mx-auto bg-white rounded-xl shadow-md mt-10 overflow-hidden">
+  <ScrollArea className="max-h-[600px] overflow-y-auto p-6">
+    <Table className="min-w-[800px]">
+
           <TableHeader>
             <TableRow>
               <TableHead className="w-[180px] text-red-600">Name</TableHead>
@@ -57,7 +70,6 @@ const DataTable = ({ applicants, handleAccept, excom }) => {
                         <CheckCircle className="mr-2 h-4 w-4" />
                         Accepted
                       </span>
-                      
                     ) : (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -95,4 +107,3 @@ const DataTable = ({ applicants, handleAccept, excom }) => {
 };
 
 export default DataTable;
-

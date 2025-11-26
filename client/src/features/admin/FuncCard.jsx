@@ -78,7 +78,7 @@ const FuncCard = ({redirectTo,icon,heading,isAdmin}) => {
     }
     
   return (
-    <Card className="border-none flex flex-col  bg-white bg-opacity-90 w-[20%] aspect-square  cursor-pointer hover:scale-105 hover:ease-in transition-all "  onClick={()=>{
+    <Card className="border-none flex flex-col  bg-white w-[20%] aspect-square  cursor-pointer hover:scale-105 hover:ease-in transition-all "  onClick={()=>{
         if(!isAdmin){
             alert("Excom admins have restricted access")
         }

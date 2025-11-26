@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, useLoaderData, useActionData, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Table,
   TableBody,
@@ -18,11 +21,33 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+const formSchema = z.object({
+  name: z.string().min(1, "Full Name is required."),
+  rollno: z
+    .string()
+    .regex(/22k-\d{4}/, {
+      message: "Roll number must be in the format: 22k-XXXX",
+    }),
+  email: z
+    .string()
+    .email("Invalid email address")
+    .refine((val) => val.endsWith("@nu.edu.pk"), {
+      message: "Email must end with @nu.edu.pk",
+    }),
+  past_experience: z.string().min(1, "Past Experience is required."),
+  motivation: z.string().min(1, "Motivation is required."),
+  department: z.string().min(1, "Department is required."),
+  batch: z.string().min(1, "Batch is required."),
+  position: z.string().min(1, "Position is required."),
+});
 
 export async function loader() {
   try {
@@ -64,16 +89,28 @@ export const action = async ({ request }) => {
     return { error: data.error };
   }
 };
-
 const Team = () => {
   const data = useLoaderData();
   const actionData = useActionData();
-  const [isSubmissionSuccessful, setIsSubmissionSuccessful] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isSubmissionSuccessful, setIsSubmissionSuccessful] = useState(false);
+
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      rollno: "",
+      email: "",
+      past_experience: "",
+      motivation: "",
+      department: "",
+      batch: "",
+      position: "",
+    },
+  });
 
   const toggleStatus = data?.toggleStatus || { islive: 0 };
-  const excoms = data?.excoms || [];
   const { islive } = toggleStatus;
 
   useEffect(() => {
@@ -85,127 +122,205 @@ const Team = () => {
         action: <ToastAction altText="Retry">Retry</ToastAction>,
       });
     } else if (actionData?.message) {
+      setIsSubmissionSuccessful(true);
+    }
+  }, [actionData, toast]);
+
+  useEffect(() => {
+    if (isSubmissionSuccessful) {
       toast({
         title: "Submission Successful",
         description: "Stay Tuned!",
-        action: <ToastAction altText="Dismiss" onClick={() => navigate('/')}>Ok</ToastAction>,
+        action: (
+          <ToastAction altText="Dismiss" onClick={() => navigate("/")}>
+            Ok
+          </ToastAction>
+        ),
       });
-      setIsSubmissionSuccessful(true);
     }
-  }, [actionData, toast, navigate]);
+  }, [isSubmissionSuccessful, toast, navigate]);
 
-  const headings = () => {
-    if (islive === 0 && excoms.length === 0) {
-      return "Inductions have not opened yet";
-    } else if (islive === 1) {
-      return "Apply Now";
-    } else if (excoms.length > 0) {
-      return "Presenting Excom 2024";
+  const onSubmit = async (values) => {
+    const body = new URLSearchParams(values);
+    const res = await fetch("http://127.0.0.1:5001/api/register_induction", {
+      method: "POST",
+      body,
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      toast({
+        title: "Submission Failed",
+        description: result.error,
+        variant: "destructive",
+        action: <ToastAction altText="Retry">Retry</ToastAction>,
+      });
     }
   };
 
+  const headings = () => {
+    if (!islive) return "Inductions are currently closed";
+    return "Apply Now";
+  };
+
   return (
-    <div className='h-dvh w-full flex justify-center items-center'>
-      <div className='bg-white lg:w-[35%] w-[80%] p-10 rounded-2xl flex flex-col items-center justify-evenly animate-open'> 
-        <h1 className='text-black lg:text-4xl text-2xl font-bold'>{headings()}</h1>
-        
-        {islive ? (
-          <Form method="post" className="w-[90%] flex flex-col justify-evenly items-center gap-4">
-            <Input 
-              name="name" 
-              placeholder="Full Name" 
-              className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'
-              required
-            />
-            <Input 
-              name="rollno" 
-              placeholder="22k-4297" 
-              className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'
-              required
-            />
-            <Select name="batch" required>
-              <SelectTrigger className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'>
-                <SelectValue placeholder="Select Batch" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Freshie">Freshie</SelectItem>
-                <SelectItem value="Sophomore">Sophomore</SelectItem>
-                <SelectItem value="Junior">Junior</SelectItem>
-                <SelectItem value="Senior">Senior</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input 
-              name="department" 
-              placeholder="Department e.g: BsCs" 
-              className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'
-              required
-            />
-            <Input 
-              name="email" 
-              type="email"
-              placeholder="Email Address" 
-              className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'
-              required
-            />
-            <Select name="position" required>
-              <SelectTrigger className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'>
-                <SelectValue placeholder="Select Position" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="President">President</SelectItem>
-                <SelectItem value="Vice President">Vice President</SelectItem>
-                <SelectItem value="Treasurer">Treasurer</SelectItem>
-                <SelectItem value="Secretary">Secretary</SelectItem>
-                <SelectItem value="General Secretary">General Secretary</SelectItem>
-                <SelectItem value="Event Manager">Event Manager</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input 
-              name="past_experience" 
-              placeholder="Tell us about your past experiences" 
-              className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'
-              required
-            />
-            <Input 
-              name="motivation" 
-              placeholder="What are your motivations?" 
-              className='text-xs lg:text-base text-black border-black border-2 rounded-lg p-2 lg:w-[70%] w-[90%] focus:border-red-600 focus:border-2'
-              required
-            />
-            <Button type="submit" className='bg-red-600 text-white lg:p-4 p-3 rounded-lg lg:w-[70%] w-[90%]'>
-              Submit Application
-            </Button>
-          </Form>
-        ) : (
-          excoms.length > 0 && (
-            <div className="w-full overflow-x-auto">
-              <Table className="w-full">
-                <TableCaption className="text-red-600 font-semibold">Excom 2024</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-red-600">Name</TableHead>
-                    <TableHead className="text-red-600">Roll Number</TableHead>
-                    <TableHead className="text-red-600">Position</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {excoms.map((excom) => (
-                    <TableRow key={excom.roll_number} className="hover:bg-red-50">
-                      <TableCell className="font-medium">{excom.name}</TableCell>
-                      <TableCell>{excom.roll_number}</TableCell>
-                      
-                      <TableCell><Badge variant={"outline"}>{excom.position} </Badge></TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )
-        )}
-      </div>
+    <div className="w-full flex justify-center items-center absolute top-24 z-10">
+      <Card className="bg-white shadow-2xl rounded-2xl w-[90%] lg:w-[80%] max-h-[90vh]">
+        <CardHeader className=" top-0 z-10 ">
+          <CardTitle className="text-red-700 text-2xl lg:text-3xl font-medium text-center">
+            {headings()}
+          </CardTitle>
+        </CardHeader>
+        {/* <ScrollArea className="h-[70vh] px-6"> */}
+          <CardContent className="p-6">
+            {islive ? (
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Personal Info */}
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <Label htmlFor="name">Full Name</Label>
+                      <Input
+                        id="name"
+                        {...form.register("name")}
+                        placeholder="Enter your full name"
+                      />
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.name?.message}
+                      </p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label htmlFor="rollno">Roll No</Label>
+                      <Input
+                        id="rollno"
+                        {...form.register("rollno")}
+                        placeholder="22k-XXXX"
+                      />
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.rollno?.message}
+                      </p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        {...form.register("email")}
+                        placeholder="example@nu.edu.pk"
+                      />
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.email?.message}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Selection Fields */}
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <Label htmlFor="department">Department</Label>
+                      <select
+                        id="department"
+                        {...form.register("department")}
+                        className="w-full border rounded-md p-2"
+                      >
+                        <option value="">Select department</option>
+                        <option value="BCS">BCS</option>
+                        <option value="BEE">BEE</option>
+                        <option value="BCY">BCY</option>
+                        <option value="BAI">BAI</option>
+                      </select>
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.department?.message}
+                      </p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label htmlFor="batch">Batch</Label>
+                      <select
+                        id="batch"
+                        {...form.register("batch")}
+                        className="w-full border rounded-md p-2"
+                      >
+                        <option value="">Select batch</option>
+                        <option value="Freshie">Freshie</option>
+                        <option value="Sophomore">Sophomore</option>
+                        <option value="Junior">Junior</option>
+                        <option value="Senior">Senior</option>
+                      </select>
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.batch?.message}
+                      </p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label htmlFor="position">Position</Label>
+                      <select
+                        id="position"
+                        {...form.register("position")}
+                        className="w-full border rounded-md p-2"
+                      >
+                        <option value="">Select position</option>
+                        <option value="Secretary">Secretary</option>
+                        <option value="Chairperson">Chairperson</option>
+                        <option value="Member">Member</option>
+                      </select>
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.position?.message}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Large Text Areas */}
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <Label htmlFor="past_experience">Past Experience</Label>
+                    <textarea
+                      id="past_experience"
+                      {...form.register("past_experience")}
+                      className="w-full border rounded-md p-2 min-h-[40px]"
+                      placeholder="Describe your past experience"
+                    />
+                    <p className="text-sm text-red-500">
+                      {form.formState.errors.past_experience?.message}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label htmlFor="motivation">Motivation</Label>
+                    <textarea
+                      id="motivation"
+                      {...form.register("motivation")}
+                      className="w-full border rounded-md p-2 min-h-[40px]"
+                      placeholder="Why do you want to join?"
+                    />
+                    <p className="text-sm text-red-500">
+                      {form.formState.errors.motivation?.message}
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full bg-red-600 text-white py-6 text-lg"
+                >
+                  Submit Application
+                </Button>
+              </form>
+            ) : (
+              <div className="flex justify-center py-10">
+                <Badge variant="outline" className="text-lg py-2 px-4">
+                  Inductions are currently closed. Check back later!
+                </Badge>
+              </div>
+            )}
+          </CardContent>
+        {/* </ScrollArea> */}
+      </Card>
     </div>
   );
 };
 
 export default Team;
-

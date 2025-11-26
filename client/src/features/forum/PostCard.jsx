@@ -42,7 +42,7 @@ const PostCard = ({ id, content, email, likes, time, handler, btn }) => {
       <CardFooter className="flex justify-between items-center">
         <form
           method={btn === 'true' ? 'DELETE' : 'POST'}
-          onSubmit={handleSubmit} 
+        
           className="flex items-center"
         >
           <input type="hidden" name="id" value={id} />
@@ -51,8 +51,9 @@ const PostCard = ({ id, content, email, likes, time, handler, btn }) => {
             variant="ghost"
             size="sm"
             className="text-red-600 hover:text-black"
+            onClick={handler}
           >
-            {btn !== 'true' && <ThumbsUp className="w-4 h-4 mr-2" />}
+            {btn !== 'true' && <ThumbsUp className="w-4 h-4 mr-2" onClick={handler}/>}
             {btn !== 'true' ? 'Like' : 'Delete'}
           </Button>
         </form>
